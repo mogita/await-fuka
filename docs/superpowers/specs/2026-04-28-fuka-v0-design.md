@@ -316,14 +316,16 @@ Cell color uses bare numbers as grayscale brightness, matching the Tetris demo c
 
 ### ControlPanel (`src/components/ControlPanel.tsx`)
 
-Three Buttons labeled A, B, C wired to `app.cycle()`, `app.execute()`, `app.cancel()`. Layout direction (horizontal / vertical) is a prop driven by widget family. Each button gets equal share of the available strip.
+Three Buttons labeled A, B, C wired to `app.cycle()`, `app.execute()`, `app.cancel()`. Always rendered as a horizontal `HStack` regardless of widget family; each button takes equal share of the strip's width. The strip's outer dimensions come from the parent layout (bottom-of-screen for vertical-outer families, right-of-screen for horizontal-outer families).
 
 ### widget.tsx (root)
 
 Receives `WidgetEntry` with `gameState`. Computes `cellSide = floor(min(size.width, size.height) / 32)`, calls `composeFrame(gameState, now)`, then arranges:
 
-- `family === 'medium'`: HStack with LedScreen on left, ControlPanel vertical on right.
-- All other families (`small`, `large`, `extraLarge`, fallbacks): VStack with LedScreen on top, ControlPanel horizontal on bottom.
+- `family === 'medium'`: outer HStack with LedScreen on left, ControlPanel on right.
+- All other families (`small`, `large`, `extraLarge`, fallbacks): outer VStack with LedScreen on top, ControlPanel on bottom.
+
+ControlPanel itself always renders its A/B/C buttons in a horizontal HStack regardless of family.
 
 LED screen container is always a square (`32 * cellSide` per side). The button strip occupies the remaining real estate.
 
