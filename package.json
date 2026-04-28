@@ -1,0 +1,11 @@
+{
+  "name": "await-fuka",
+  "private": true,
+  "scripts": {
+    "build": "bun build ./src/index.tsx --outfile=./build/index.tsx --external 'await' --external 'runtime/jsx-runtime' --target=browser --format=esm --production",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}
