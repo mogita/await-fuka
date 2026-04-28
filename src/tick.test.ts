@@ -126,3 +126,21 @@ test('nextInterestingMoment: returns action.until when set and earliest', () => 
   s = {...s, action: {kind: 'feed', until}};
   expect(nextInterestingMoment(s, HATCH_DURATION_MS, 1)).toBe(until);
 });
+
+test('nextInterestingMoment: returns minimum across multiple candidates', () => {
+  let s = freshState(0);
+  s = tick(s, HATCH_DURATION_MS, 1);
+  // hunger > 0 (next tick = HATCH_DURATION_MS + HUNGER_INTERVAL_MS),
+  // !hasPoop (next tick = HATCH_DURATION_MS + POOP_INTERVAL_MS),
+  // action.until is earlier than both, so it should win.
+  s = {...s, action: {kind: 'feed', until: HATCH_DURATION_MS + 100}};
+  expect(nextInterestingMoment(s, HATCH_DURATION_MS, 1)).toBe(HATCH_DURATION_MS + 100);
+});
+
+test('nextInterestingMoment: returns now + 1h fallback when nothing pending', () => {
+  let s = freshState(0);
+  s = tick(s, HATCH_DURATION_MS, 1);
+  s = {...s, hunger: 0, hasPoop: true};
+  const now = HATCH_DURATION_MS + 1000;
+  expect(nextInterestingMoment(s, now, 1)).toBe(now + 60 * 60 * 1000);
+});
