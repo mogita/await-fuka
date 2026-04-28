@@ -23,6 +23,8 @@ export function widget(props: WidgetProps) {
   const screen = <LedScreen matrix={matrix} cellSide={layout.cellSide}/>;
   const controls = (
     <ControlPanel
+      direction={layout.direction}
+      controlSize={layout.controlSize}
       cycle={cycleIntent}
       execute={executeIntent}
       cancel={cancelIntent}
