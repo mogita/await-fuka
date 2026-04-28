@@ -2,10 +2,13 @@ import {loadOrInit, save, GameState} from './state';
 import {tick, nextInterestingMoment} from './tick';
 import {worldSpeed} from './config';
 
-// Pre-compute many evenly spaced timeline entries so the runtime can advance
-// the displayed frame without re-fetching the timeline. NUM_FRAMES * INTERVAL
-// = the wall-clock window covered by one timeline call.
-const FRAME_INTERVAL_MS = 250;
+// Cadence at which timeline entries are spaced. The runtime renders one entry
+// per date; finer cadence = smoother animation but a shorter window before the
+// timeline must be re-fetched. Adaptive: tight while an action animation is
+// playing (eating cycles at 200ms so we want at least that), loose otherwise
+// (idle/hungry/happy cycle at 400-1000ms; we don't need finer than 1s).
+const ACTION_CADENCE_MS = 200;
+const IDLE_CADENCE_MS = 1000;
 const NUM_FRAMES = 60;
 
 export function widgetTimeline(_context: TimelineContext) {
@@ -14,9 +17,11 @@ export function widgetTimeline(_context: TimelineContext) {
   const tickedNow = tick(initialState, now, worldSpeed);
   save(tickedNow);
 
+  const cadence = tickedNow.action ? ACTION_CADENCE_MS : IDLE_CADENCE_MS;
+
   const entries: Array<{date: Date; gameState: GameState}> = [];
   for (let i = 0; i < NUM_FRAMES; i++) {
-    const frameTime = now + i * FRAME_INTERVAL_MS;
+    const frameTime = now + i * cadence;
     const frameState = tick(tickedNow, frameTime, worldSpeed);
     entries.push({date: new Date(frameTime), gameState: frameState});
   }
@@ -24,9 +29,9 @@ export function widgetTimeline(_context: TimelineContext) {
   // Refresh either right after the last pre-computed frame, or earlier if some
   // game-state event (hatch, hunger drop, action expiry) lands inside the
   // window. The runtime will re-call this function and we'll re-load state.
-  const lastFrameTime = now + (NUM_FRAMES - 1) * FRAME_INTERVAL_MS;
+  const lastFrameTime = now + (NUM_FRAMES - 1) * cadence;
   const next = nextInterestingMoment(tickedNow, now, worldSpeed);
-  const refreshAt = Math.min(lastFrameTime + FRAME_INTERVAL_MS, next);
+  const refreshAt = Math.min(lastFrameTime + cadence, next);
 
   return {
     entries,
