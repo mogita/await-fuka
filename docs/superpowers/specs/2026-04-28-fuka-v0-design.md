@@ -322,8 +322,8 @@ Three Buttons labeled A, B, C wired to `app.cycle()`, `app.execute()`, `app.canc
 
 Receives `WidgetEntry` with `gameState`. Computes `cellSide = floor(min(size.width, size.height) / 32)`, calls `composeFrame(gameState, now)`, then arranges:
 
-- `family === 'systemMedium'`: HStack with LedScreen on left, ControlPanel vertical on right.
-- All other families (`systemSmall`, `systemLarge`, fallbacks): VStack with LedScreen on top, ControlPanel horizontal on bottom.
+- `family === 'medium'`: HStack with LedScreen on left, ControlPanel vertical on right.
+- All other families (`small`, `large`, `extraLarge`, fallbacks): VStack with LedScreen on top, ControlPanel horizontal on bottom.
 
 LED screen container is always a square (`32 * cellSide` per side). The button strip occupies the remaining real estate.
 
@@ -343,7 +343,7 @@ type Layout = {
 Rules:
 - `cellSide = floor(min(size.width, size.height) / 32)`. Lower bound 1; if floor produces 0 the widget family is too small to render and we still emit 1 to avoid crashes.
 - `screenSide = 32 * cellSide`.
-- For `systemMedium`: `direction = 'horizontal'`, `controlSize = size.width - screenSide`.
+- For `medium`: `direction = 'horizontal'`, `controlSize = size.width - screenSide`.
 - All others: `direction = 'vertical'`, `controlSize = size.height - screenSide`.
 
 Buttons share `controlSize` evenly: each gets `floor(longSide / 3)` along the layout axis.
