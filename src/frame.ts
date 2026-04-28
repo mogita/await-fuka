@@ -82,7 +82,7 @@ function pickPetSprite(state: GameState): readonly number[][] {
   return petIdleSprite;
 }
 
-export function composeFrame(state: GameState, _now: number): number[][] {
+export function composeFrame(state: GameState): number[][] {
   const m = blank();
 
   if (state.stage === 'pet') {

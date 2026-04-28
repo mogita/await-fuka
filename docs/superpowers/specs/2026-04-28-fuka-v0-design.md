@@ -103,7 +103,7 @@ await-fuka/
 │   ├── widget.tsx           # render root, family-switched layout
 │   ├── layout.ts            # geometry per widget family
 │   ├── sprites.ts           # bitmap definitions
-│   ├── frame.ts             # composeFrame(state, ...) -> 32x32 number[][]
+│   ├── frame.ts             # composeFrame(state) -> 32x32 number[][]
 │   └── components/
 │       ├── LedScreen.tsx    # renders a number[][] matrix
 │       └── ControlPanel.tsx # A/B/C buttons
@@ -255,7 +255,7 @@ The 32x32 brightness matrix is the single source of truth. All visuals compose i
 ### Frame composition (`src/frame.ts`)
 
 ```ts
-function composeFrame(state: GameState, now: number): number[][]
+function composeFrame(state: GameState): number[][]
 ```
 
 Paints in order onto a zeroed 32x32 buffer (background brightness = 0):

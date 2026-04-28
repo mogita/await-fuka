@@ -7,13 +7,13 @@ function pet(overrides: Partial<ReturnType<typeof freshState>> = {}) {
 }
 
 test('returns 32x32 matrix', () => {
-  const m = composeFrame(freshState(0), 0);
+  const m = composeFrame(freshState(0));
   expect(m.length).toBe(32);
   for (const row of m) expect(row.length).toBe(32);
 });
 
 test('all values are in [0, 1]', () => {
-  const m = composeFrame(pet({hunger: 2, hasPoop: true}), 0);
+  const m = composeFrame(pet({hunger: 2, hasPoop: true}));
   for (const row of m) {
     for (const v of row) {
       expect(v).toBeGreaterThanOrEqual(0);
@@ -23,7 +23,7 @@ test('all values are in [0, 1]', () => {
 });
 
 test('egg stage hides menu, ground, hearts', () => {
-  const m = composeFrame(freshState(0), 0);
+  const m = composeFrame(freshState(0));
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 32; c++) expect(m[r]![c]!).toBe(0);
   }
@@ -34,7 +34,7 @@ test('egg stage hides menu, ground, hearts', () => {
 });
 
 test('egg stage paints egg sprite in pet area', () => {
-  const m = composeFrame(freshState(0), 0);
+  const m = composeFrame(freshState(0));
   let nonZero = 0;
   for (let r = 7; r <= 22; r++) {
     for (let c = 8; c <= 23; c++) if (m[r]![c]! > 0) nonZero++;
@@ -43,7 +43,7 @@ test('egg stage paints egg sprite in pet area', () => {
 });
 
 test('pet stage paints menu icons', () => {
-  const m = composeFrame(pet(), 0);
+  const m = composeFrame(pet());
   let nonZero = 0;
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 32; c++) if (m[r]![c]! > 0) nonZero++;
@@ -52,7 +52,7 @@ test('pet stage paints menu icons', () => {
 });
 
 test('cursor=feed: feed icon brighter than clean icon', () => {
-  const m = composeFrame(pet({menuCursor: 'feed'}), 0);
+  const m = composeFrame(pet({menuCursor: 'feed'}));
   let maxFeed = 0;
   let maxClean = 0;
   for (let r = 0; r < 4; r++) {
@@ -63,7 +63,7 @@ test('cursor=feed: feed icon brighter than clean icon', () => {
 });
 
 test('cursor=clean: clean icon brighter than feed icon', () => {
-  const m = composeFrame(pet({menuCursor: 'clean'}), 0);
+  const m = composeFrame(pet({menuCursor: 'clean'}));
   let maxFeed = 0;
   let maxClean = 0;
   for (let r = 0; r < 4; r++) {
@@ -74,7 +74,7 @@ test('cursor=clean: clean icon brighter than feed icon', () => {
 });
 
 test('cursor=none: feed and clean equal brightness', () => {
-  const m = composeFrame(pet({menuCursor: 'none'}), 0);
+  const m = composeFrame(pet({menuCursor: 'none'}));
   let maxFeed = 0;
   let maxClean = 0;
   for (let r = 0; r < 4; r++) {
@@ -85,7 +85,7 @@ test('cursor=none: feed and clean equal brightness', () => {
 });
 
 test('hasPoop paints poop region', () => {
-  const m = composeFrame(pet({hasPoop: true}), 0);
+  const m = composeFrame(pet({hasPoop: true}));
   let nonZero = 0;
   for (let r = 17; r <= 22; r++) {
     for (let c = 24; c <= 29; c++) if (m[r]![c]! > 0) nonZero++;
@@ -94,7 +94,7 @@ test('hasPoop paints poop region', () => {
 });
 
 test('no poop: poop region is empty', () => {
-  const m = composeFrame(pet({hasPoop: false}), 0);
+  const m = composeFrame(pet({hasPoop: false}));
   let nonZero = 0;
   for (let r = 17; r <= 22; r++) {
     for (let c = 24; c <= 29; c++) if (m[r]![c]! > 0) nonZero++;
@@ -103,8 +103,8 @@ test('no poop: poop region is empty', () => {
 });
 
 test('hunger=4 lights more heart cells than hunger=2', () => {
-  const m4 = composeFrame(pet({hunger: 4}), 0);
-  const m2 = composeFrame(pet({hunger: 2}), 0);
+  const m4 = composeFrame(pet({hunger: 4}));
+  const m2 = composeFrame(pet({hunger: 2}));
   let lit4 = 0;
   let lit2 = 0;
   for (let r = 28; r < 32; r++) {
@@ -117,15 +117,15 @@ test('hunger=4 lights more heart cells than hunger=2', () => {
 });
 
 test('ground line on row 23 during pet stage', () => {
-  const m = composeFrame(pet(), 0);
+  const m = composeFrame(pet());
   let lit = 0;
   for (let c = 4; c < 28; c++) if (m[23]![c]! > 0) lit++;
   expect(lit).toBeGreaterThan(0);
 });
 
 test('action=feed shows eating sprite (different from idle)', () => {
-  const idle = composeFrame(pet(), 0);
-  const eating = composeFrame(pet({action: {kind: 'feed', until: 1000}}), 0);
+  const idle = composeFrame(pet());
+  const eating = composeFrame(pet({action: {kind: 'feed', until: 1000}}));
   // at least one cell differs in the pet area
   let differs = 0;
   for (let r = 7; r <= 22; r++) {
