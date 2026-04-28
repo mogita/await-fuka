@@ -1,0 +1,62 @@
+import {readFile, writeFile, mkdir, rm} from 'node:fs/promises';
+
+// Topological order: dependencies first, dependents last.
+const FILES = [
+  'src/config.ts',
+  'src/layout.ts',
+  'src/sprites.ts',
+  'src/state.ts',
+  'src/tick.ts',
+  'src/frame.ts',
+  'src/components/LedScreen.tsx',
+  'src/components/ControlPanel.tsx',
+  'src/widget.tsx',
+  'src/intents.ts',
+  'src/timeline.ts',
+  'src/index.tsx',
+];
+
+const NAMED_IMPORT = /import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"])\s*;?/g;
+
+await rm('./build', {recursive: true, force: true});
+await mkdir('./build', {recursive: true});
+
+const awaitNames = new Set<string>();
+const segments: string[] = [];
+
+for (const path of FILES) {
+  let content = await readFile(path, 'utf8');
+
+  // Normalize multi-line named imports to a single line so subsequent
+  // line-based regexes can match them.
+  content = content.replace(NAMED_IMPORT, (_match, names: string, source: string) => {
+    const oneline = names.replace(/\s+/g, ' ').trim();
+    return `import {${oneline}} from ${source};`;
+  });
+
+  // Collect 'await' import names so we can hoist a single combined import.
+  for (const match of content.matchAll(/^import\s+\{([^}]*)\}\s+from\s+['"]await['"]\s*;?\s*$/gm)) {
+    for (const raw of match[1]!.split(',')) {
+      const name = raw.trim();
+      if (name) awaitNames.add(name);
+    }
+  }
+
+  // Strip 'await' imports (they will be hoisted at the top).
+  content = content.replace(/^import\s+\{[^}]*\}\s+from\s+['"]await['"]\s*;?\s*\n?/gm, '');
+
+  // Strip local imports (./ or ../).
+  content = content.replace(/^import\s+(?:type\s+)?\{[^}]*\}\s+from\s+['"]\.\.?\/[^'"]*['"]\s*;?\s*\n?/gm, '');
+
+  // Strip 'export' keyword from top-level declarations. Each file becomes a
+  // section of one combined script; nothing actually re-exports anything.
+  content = content.replace(/^export\s+(?=(?:type\s|const\s|function\s|class\s|interface\s|enum\s|let\s|var\s|async\s+function\s))/gm, '');
+
+  segments.push(content.trim());
+}
+
+const awaitImport = `import {${[...awaitNames].sort().join(', ')}} from 'await';`;
+const output = `${awaitImport}\n\n${segments.join('\n\n')}\n`;
+
+await writeFile('./build/index.tsx', output);
+console.log(`Built build/index.tsx (${output.length} bytes)`);

@@ -1,10 +1,10 @@
-import {widget as renderWidget} from './widget';
+import {widget} from './widget';
 import {widgetTimeline} from './timeline';
 import {cycle, execute, cancel} from './intents';
 import {GameState} from './state';
 
 const app = Await.define({
-  widget: (entry: WidgetEntry<{gameState: GameState}>): NativeView => renderWidget({
+  widget: (entry: WidgetEntry<{gameState: GameState}>): NativeView => widget({
     family: entry.family,
     size: entry.size,
     gameState: entry.gameState,
