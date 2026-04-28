@@ -12,20 +12,20 @@ import {
   hollowHeart,
 } from './sprites';
 
-const SCREEN_SIZE = 32;
+const SCREEN_SIZE = 48;
 const SELECTED_BRIGHTNESS = 1;
 const UNSELECTED_BRIGHTNESS = 0.5;
 const GROUND_BRIGHTNESS = 0.4;
 
-const PET_ROW = 7;
-const PET_COL = 8;
-const POOP_ROW = 17;
-const POOP_COL = 24;
-const GROUND_ROW = 23;
+const PET_ROW = 10;
+const PET_COL = 12;
+const POOP_ROW = 25;
+const POOP_COL = 36;
+const GROUND_ROW = 34;
 const FEED_ICON_COL = 4;
-const CLEAN_ICON_COL = 18;
+const CLEAN_ICON_COL = 26;
 const ICON_ROW = 0;
-const HEART_ROW = 28;
+const HEART_ROW = 42;
 const HEART_GAP = 1;
 
 function blank(): number[][] {
@@ -58,7 +58,7 @@ function paint(
 }
 
 function paintGround(matrix: number[][]): void {
-  for (let c = 4; c < 28; c++) {
+  for (let c = 4; c < 44; c++) {
     matrix[GROUND_ROW]![c] = GROUND_BRIGHTNESS;
   }
 }

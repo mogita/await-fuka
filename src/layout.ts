@@ -18,8 +18,8 @@ export function layoutFor(family: string, size: {width: number; height: number})
 
   if (direction === 'horizontal') {
     // Medium: square screen consumes min dimension; controls take leftover width.
-    const cellSide = Math.max(1, Math.floor(Math.min(size.width, size.height) / 32));
-    const screenSide = cellSide * 32;
+    const cellSide = Math.max(1, Math.floor(Math.min(size.width, size.height) / 48));
+    const screenSide = cellSide * 48;
     const controlSize = Math.max(0, size.width - screenSide);
     return {cellSide, screenSide, controlSize, direction};
   }
@@ -28,7 +28,7 @@ export function layoutFor(family: string, size: {width: number; height: number})
   // into the remaining height (still capped by width to stay square).
   const availableHeight = Math.max(0, size.height - VERTICAL_STRIP_MIN);
   const screenMax = Math.min(size.width, availableHeight);
-  const cellSide = Math.max(1, Math.floor(screenMax / 32));
-  const screenSide = cellSide * 32;
+  const cellSide = Math.max(1, Math.floor(screenMax / 48));
+  const screenSide = cellSide * 48;
   return {cellSide, screenSide, controlSize: VERTICAL_STRIP_MIN, direction};
 }
