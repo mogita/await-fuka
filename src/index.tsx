@@ -7,6 +7,7 @@ const app = Await.define({
   widget: (entry: WidgetEntry<{gameState: GameState}>): NativeView => widget({
     family: entry.family,
     size: entry.size,
+    now: entry.date.getTime(),
     gameState: entry.gameState,
     cycleIntent: app.cycle(),
     executeIntent: app.execute(),

@@ -11,7 +11,7 @@ export type Layout = {
 // families (small/large), where the strip sits at the bottom and is height-bound.
 // Without this reserve the strip collapses to a few pixels and buttons get
 // visually clipped at small widget dimensions (~158x158).
-const VERTICAL_STRIP_MIN = 50;
+const VERTICAL_STRIP_MIN = 40;
 
 export function layoutFor(family: string, size: {width: number; height: number}): Layout {
   const direction: Direction = family === 'medium' ? 'horizontal' : 'vertical';

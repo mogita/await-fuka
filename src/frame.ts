@@ -1,10 +1,11 @@
 import {GameState} from './state';
 import {
-  eggSprite,
-  petIdleSprite,
-  petHungrySprite,
-  petEatingSprite,
-  petHappySprite,
+  AnimatedSprite,
+  eggAnim,
+  petIdleAnim,
+  petHungryAnim,
+  petEatingAnim,
+  petHappyAnim,
   poopSprite,
   feedIcon,
   cleanIcon,
@@ -22,10 +23,15 @@ const PET_COL = 12;
 const POOP_ROW = 25;
 const POOP_COL = 36;
 const GROUND_ROW = 34;
-const FEED_ICON_COL = 4;
-const CLEAN_ICON_COL = 26;
-const ICON_ROW = 0;
-const HEART_ROW = 42;
+// 12-wide icons centered in each 24-wide menu half: left half col 0..23 => col 6,
+// right half col 24..47 => col 30. ICON_ROW=1 vertically centers a 6-tall icon
+// inside the 8-row top strip.
+const FEED_ICON_COL = 6;
+const CLEAN_ICON_COL = 30;
+const ICON_ROW = 1;
+// Hearts grew from 4 to 5 rows (added bottom tip); shift up one to leave a
+// 2-row bottom margin (rows 46-47).
+const HEART_ROW = 41;
 const HEART_GAP = 1;
 
 function blank(): number[][] {
@@ -74,15 +80,23 @@ function paintHearts(matrix: number[][], hunger: number): void {
   }
 }
 
-function pickPetSprite(state: GameState): readonly number[][] {
-  if (state.stage === 'egg') return eggSprite;
-  if (state.action?.kind === 'feed') return petEatingSprite;
-  if (state.action?.kind === 'clean') return petHappySprite;
-  if (state.hunger === 0) return petHungrySprite;
-  return petIdleSprite;
+// Pick the active frame of an animation by absolute wall-clock time. Using
+// floor(now/interval) makes the animation phase global across timeline entries
+// and across widget re-renders, so no per-state animation phase is needed.
+function pickAnimFrame(anim: AnimatedSprite, now: number): readonly number[][] {
+  const idx = Math.floor(now / anim.intervalMs) % anim.frames.length;
+  return anim.frames[idx]!;
 }
 
-export function composeFrame(state: GameState): number[][] {
+function pickPetSprite(state: GameState, now: number): readonly number[][] {
+  if (state.stage === 'egg') return pickAnimFrame(eggAnim, now);
+  if (state.action?.kind === 'feed') return pickAnimFrame(petEatingAnim, now);
+  if (state.action?.kind === 'clean') return pickAnimFrame(petHappyAnim, now);
+  if (state.hunger === 0) return pickAnimFrame(petHungryAnim, now);
+  return pickAnimFrame(petIdleAnim, now);
+}
+
+export function composeFrame(state: GameState, now: number): number[][] {
   const m = blank();
 
   if (state.stage === 'pet') {
@@ -92,7 +106,7 @@ export function composeFrame(state: GameState): number[][] {
     paint(m, cleanIcon, ICON_ROW, CLEAN_ICON_COL, cleanScale);
   }
 
-  paint(m, pickPetSprite(state), PET_ROW, PET_COL);
+  paint(m, pickPetSprite(state, now), PET_ROW, PET_COL);
 
   if (state.stage === 'pet' && state.hasPoop) {
     paint(m, poopSprite, POOP_ROW, POOP_COL);

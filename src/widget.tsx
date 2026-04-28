@@ -8,6 +8,7 @@ import {ControlPanel} from './components/ControlPanel';
 export type WidgetProps = {
   family: WidgetFamily;
   size: Size;
+  now: number;
   gameState: GameState;
   cycleIntent: IntentInfo;
   executeIntent: IntentInfo;
@@ -15,9 +16,9 @@ export type WidgetProps = {
 };
 
 export function widget(props: WidgetProps) {
-  const {gameState, cycleIntent, executeIntent, cancelIntent, family, size} = props;
+  const {gameState, cycleIntent, executeIntent, cancelIntent, family, size, now} = props;
   const layout = layoutFor(family, size);
-  const matrix = composeFrame(gameState);
+  const matrix = composeFrame(gameState, now);
 
   const screen = <LedScreen matrix={matrix} cellSide={layout.cellSide}/>;
   const controls = (
