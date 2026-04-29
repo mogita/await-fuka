@@ -118,8 +118,11 @@ function ScreenArea({state, now, side}: ScreenAreaProps) {
     </HStack>
   ) : undefined;
 
+  // maxSides expands the ZStack to fill the parent's allocated space; background
+  // (declared AFTER maxSides) paints LED_BG over the expanded frame, including
+  // any margin around the design-square area used for sprite positioning.
   return (
-    <ZStack frame={{width: side, height: side}} background={LED_BG}>
+    <ZStack maxSides background={LED_BG}>
       {menuStrip}
       {pet}
       {poop}
