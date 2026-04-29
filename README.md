@@ -1,4 +1,7 @@
-# Fuka
+<p align="center">
+  <img src="fuka.png?raw=true" width="390" height="300" />
+  <h3 align="center">Fuka</h3>
+</p>
 
 Fuka is a PoC of simple game making in [await](https://apps.apple.com/app/id6755678187). The name Fuka means hatching in Japanese (孵化). It's inspired by Tamagotchi, a handheld digital pet created in Japan in the 1990s. The goal of Fuka is to create a simple game where players can hatch and take care of virtual pets.
 
