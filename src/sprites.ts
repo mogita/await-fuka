@@ -1,6 +1,6 @@
 // All sprites use brightness in [0, 1]. 0 means transparent.
 
-// An animated sprite is a list of frames cycled over time. composeFrame picks
+// An animated sprite is a list of frames cycled over time. assets.ts picks
 // the active frame as floor(now / intervalMs) % frames.length so the cycle is
 // purely time-driven (no per-state animation phase carried in GameState).
 export type AnimatedSprite = {

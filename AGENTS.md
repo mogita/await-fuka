@@ -48,24 +48,25 @@ AwaitStore <-> state.ts (load/save, GameState type, isValidState)
                    that load -> tick -> apply -> save)
                  |
                  v
-       timeline.ts (returns 60 entries pre-ticked at adaptive cadence:
+       timeline.ts (returns 30 entries pre-ticked at adaptive cadence:
                     200ms during action, 1000ms otherwise)
                  |
                  v
-        frame.ts (composeFrame(state, now): GameState + time -> 48x48
-                  brightness matrix; picks animation frame based on now)
+        assets.ts (petAssetUrl/feedIconUrl/cleanIconUrl: GameState + time
+                   -> PNG path; picks the animation frame URL)
                  |
                  v
-     widget.tsx + components/* (renders the matrix as Rectangle cells
-                                via 'await' DSL: VStack/HStack/ZStack)
+     widget.tsx + components/* (composes pre-rendered Image views in a
+                                ZStack via 'await' DSL)
                  |
                  v
-      index.tsx (Await.define wires widget, timeline, intents together)
+      index.tsx (preRender() then Await.define wires widget, timeline,
+                 intents together)
 ```
 
 Key architectural constraints:
 
-- **The 48×48 brightness matrix is the single source of truth for what's drawn.** All visuals (menu icons, pet sprite, poop, ground line, hearts) compose into one `number[][]` in `frame.ts`, which `LedScreen.tsx` then renders as 2304 `<Rectangle/>` cells. Don't add JSX rendering paths that bypass the matrix.
+- **Pre-rendered PNGs are the source of truth at render time.** `prerender.tsx` runs once on app load and saves 19 PNGs to `assets/` (one per sprite frame, plus normal/selected variants of the menu icons). The widget paints `<Image url={...}/>` views — no per-cell `Rectangle` matrix at render time. Bitmaps in `sprites.ts` remain the source of truth at PRE-RENDER time only.
 
 - **State is held in `AwaitStore` under a versioned key** (`fuka.state.v1`). On corrupt or missing state, `loadOrInit` writes a fresh egg state with `installedAt = now` so hatch math has a fixed reference.
 
@@ -75,16 +76,30 @@ Key architectural constraints:
 
 - **`worldSpeed` (in `src/config.ts`) divides every interval at runtime.** It's the only `@panel` value in the project — adjustable on-device via the Await app's panel UI without rebuilding. Tests verify the multiplier propagates through tick, intent, and timeline math.
 
+## Pre-render system
+
+The home-screen widget pre-renders all timeline entries simultaneously into a black-box cache, so per-entry view count multiplies into memory. The original 48×48 LED-matrix path generated ~2300 `Rectangle` cells per entry × 30+ entries → out of memory. Pre-rendered PNGs collapse this to ~30 view nodes per entry.
+
+Boot order:
+
+1. `index.tsx` calls `preRender()` synchronously at module load, **before** `Await.define`.
+2. `preRender()` short-circuits in two cases:
+   - **Host guard**: `AwaitEnv.host !== 'app'`. Pre-render only runs in the iPhone app context, never in the widget context (where `saveUIRenderImage` is unavailable and the memory budget is tight).
+   - **File-existence guard**: all 19 expected paths under `assets/` already exist (checked via `AwaitFile.files('assets')`).
+3. Otherwise it iterates each sprite (egg×2, idle×2, hungry×2, eating×4, happy×2, poop, hearts×2, menu icons×4 with normal/selected variants) and calls `AwaitFile.saveUIRenderImage(path, view)` to bake each one to disk.
+
+Asset names in `assets.ts` (URL helpers) **must** match what `prerender.tsx` saves — there is no shared constant; the strings are typed by hand in both files. Add or rename a sprite in one place and you must mirror it in the other.
+
 ## Animation system
 
-Pet sprites are `AnimatedSprite = {frames: readonly number[][][]; intervalMs: number}` (defined in `src/sprites.ts`). `composeFrame(state, now)` selects a frame via `Math.floor(now / intervalMs) % frames.length`. The `now` value comes from each timeline entry's `date`, not the wall clock at render time.
+Pet sprites are `AnimatedSprite = {frames: readonly number[][][]; intervalMs: number}` (defined in `src/sprites.ts`). At pre-render time, each frame becomes a separate PNG. At render time, `assets.ts` selects the active frame URL via `Math.floor(now / intervalMs) % frames.length`. The `now` value comes from each timeline entry's `date`, not the wall clock at render time.
 
-The timeline pre-computes 60 entries with state ticked forward to each entry's time, so action expiry / hunger drops happen on schedule even within one timeline window. Cadence is adaptive:
+The timeline pre-computes 30 entries with state ticked forward to each entry's time, so action expiry / hunger drops happen on schedule even within one timeline window. Cadence is adaptive:
 
-- **Action active** (eating or cleaning): 200ms cadence × 60 = 12s window. Tight enough that the 4-frame eating cycle at 200ms intervals renders every frame in order.
-- **Idle/hungry/happy** (no action): 1000ms cadence × 60 = 60s window. Coarser; relies on the runtime honoring `update` to refresh between windows.
+- **Action active** (eating or cleaning): 200ms cadence × 30 = 6s window. Tight enough that the 4-frame eating cycle at 200ms intervals renders every frame in order.
+- **Idle/hungry/happy** (no action): 1000ms cadence × 30 = 30s window. Coarser; relies on the runtime honoring `update` to refresh between windows.
 
-If autonomous animation freezes on-device after ~60 seconds, the runtime's `update` directive isn't refreshing. Fix is more entries, not faster cadence — pets at idle don't need <1Hz cadence.
+If autonomous animation freezes on-device after the window expires, the runtime's `update` directive isn't refreshing. Fix is more entries, not faster cadence — pets at idle don't need <1Hz cadence.
 
 ## Widget runtime constraints (read `runtime/await.d.ts`)
 
@@ -105,5 +120,5 @@ If autonomous animation freezes on-device after ~60 seconds, the runtime's `upda
 - **No em dashes, smart quotes, or fancy punctuation.** Anywhere — code, comments, commit messages, docs. Use hyphens, parentheses, semicolons, or rephrase.
 - **Commits are signed with the user's SSH key.** Never add `Co-Authored-By` trailers or any non-user author lines.
 - **Never push, never commit to `main`/`master` from automation.** All work happens on feature branches; the user controls when integration to `main` happens.
-- **Tests cover pure logic only** (`state`, `tick`, `intents`, `layout`, `frame`). JSX components and side-effectful wrappers are validated by `tsc --noEmit` plus on-device observation.
+- **Tests cover pure logic only** (`state`, `tick`, `intents`, `layout`, `assets`). JSX components, pre-render, and side-effectful wrappers are validated by `tsc --noEmit` plus on-device observation.
 - **Don't add validation for impossible states.** `isValidState` guards the AwaitStore boundary; downstream code trusts the type system. Defensive checks for in-bounds values that the type system already enforces are not welcome.

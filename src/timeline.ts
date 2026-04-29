@@ -9,7 +9,11 @@ import {worldSpeed} from './config';
 // (idle/hungry/happy cycle at 400-1000ms; we don't need finer than 1s).
 const ACTION_CADENCE_MS = 200;
 const IDLE_CADENCE_MS = 1000;
-const NUM_FRAMES = 60;
+// 30 entries gives 30s of idle (1000ms cadence) or 6s of action (200ms
+// cadence). With image-based rendering view count is so low we could go
+// higher, but the home-screen pre-render budget is the gating constraint, so
+// we stay conservative.
+const NUM_FRAMES = 30;
 
 export function widgetTimeline(_context: TimelineContext) {
   const now = Date.now();
