@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="fuka.png?raw=true" width="390" height="300" />
+  <img src="fuka.jpg?raw=true" width="390" height="300" />
   <h3 align="center">Fuka</h3>
 </p>
 
