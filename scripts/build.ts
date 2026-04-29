@@ -56,7 +56,11 @@ for (const path of FILES) {
 }
 
 const awaitImport = `import {${[...awaitNames].sort().join(', ')}} from 'await';`;
-const output = `${awaitImport}\n\n${segments.join('\n\n')}\n`;
+const pad = (n: number) => String(n).padStart(2, '0');
+const d = new Date();
+const builtAt = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+const header = `// Built: ${builtAt}`;
+const output = `${header}\n${awaitImport}\n\n${segments.join('\n\n')}\n`;
 
 await writeFile('./build/index.tsx', output);
 console.log(`Built build/index.tsx (${output.length} bytes)`);
