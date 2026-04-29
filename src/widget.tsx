@@ -1,4 +1,4 @@
-import {ZStack, HStack, VStack, Image, Rectangle, Text, Time} from 'await';
+import {ZStack, HStack, VStack, Image, Rectangle, Time} from 'await';
 import {GameState} from './state';
 import {layoutFor} from './layout';
 import {ControlPanel} from './components/ControlPanel';
@@ -31,27 +31,41 @@ const HEART_ROW_Y_PCT = 0.85;     // hearts row center
 const HEART_SIZE_PCT = 0.10;
 const HEART_GAP_PCT = 0.025;
 
-// Build the pet sprite as a Text node whose font feature drives mask cycling.
-// The Image children act as the glyph table; the Time component is the input
-// the font reads to swap which glyph is visible. The outer width + clipped
-// keeps only one Image visible at a time; frame.width = side * (length*2 - 1)
-// with trailing alignment is the demos/Clock Analog/index.tsx pattern.
+// Build the pet sprite as a ZStack of two Images, each gated by a fs02 Time
+// mask. The fs02 feature renders a square that's "on" for 0.5s of every 1s
+// cycle. By giving the two masks dates 1s apart (aligned to a minute boundary
+// so phases are stable), the two masks are 180-degrees out of phase and exactly
+// one Image is visible at any moment. Net: 2-frame alternating animation
+// driven by the runtime's wall clock, no timeline entries needed.
 function buildPetAnim(state: GameState, side: number, offsetY: number): NativeView {
-  const {urls, feature} = petAnimSpec(state);
-  const length = urls.length;
-  return (
-    <Text
-      font={{name: 'Widget', size: side, features: feature}}
-      frame={{width: side * (length * 2 - 1), height: side, alignment: 'trailing'}}
-      textAlignment='trailing'
-      width={side}
-      clipped
+  const {urls} = petAnimSpec(state);
+  const baseDate = new Date();
+  baseDate.setSeconds(0, 0);
+  const phaseAt = (offsetSeconds: number) => (
+    <Time
+      date={new Date(baseDate.getTime() + offsetSeconds * 1000)}
+      font={{name: 'Widget', features: 'fs02', size: side}}
+      sides={side}
       contentTransition='identity'
-      offset={{x: 0, y: offsetY}}
-    >
-      {urls.map(url => <Image url={url} resizable interpolation='none'/>)}
-      <Time date={new Date()}/>
-    </Text>
+    />
+  );
+  return (
+    <ZStack offset={{x: 0, y: offsetY}}>
+      <Image
+        url={urls[0]}
+        resizable
+        interpolation='none'
+        frame={{width: side, height: side}}
+        mask={phaseAt(0)}
+      />
+      <Image
+        url={urls[1]}
+        resizable
+        interpolation='none'
+        frame={{width: side, height: side}}
+        mask={phaseAt(1)}
+      />
+    </ZStack>
   );
 }
 
