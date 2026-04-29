@@ -1,7 +1,7 @@
 import {test, expect} from 'bun:test';
 import {layoutFor} from './layout';
 
-// VERTICAL_STRIP_MIN = 40, HORIZONTAL_STRIP_MIN = 80.
+// VERTICAL_STRIP_MIN = 40, HORIZONTAL_STRIP_MIN = 110.
 // screenSide is the design dimension (max square that fits); the actual
 // rendered LED area can be wider via maxSides on the screen ZStack.
 
@@ -16,9 +16,9 @@ test('small (158x158): vertical', () => {
 test('medium (338x158): horizontal layout, fixed strip', () => {
   const l = layoutFor('medium', {width: 338, height: 158});
   expect(l.direction).toBe('horizontal');
-  // screenSide = min(338 - 80, 158) = 158
+  // screenSide = min(338 - 110, 158) = min(228, 158) = 158
   expect(l.screenSide).toBe(158);
-  expect(l.controlSize).toBe(80);
+  expect(l.controlSize).toBe(110);
 });
 
 test('large (338x354): vertical, larger screen', () => {
@@ -51,7 +51,7 @@ test('rectangular small caps screen by available height', () => {
 test('medium too narrow stays positive', () => {
   // Pathological: medium where width < strip; screenSide clamps to 1.
   const l = layoutFor('medium', {width: 50, height: 100});
-  // screenSide = max(1, min(50 - 80, 100)) = max(1, min(-30, 100)) = 1
+  // screenSide = max(1, min(50 - 110, 100)) = max(1, min(-60, 100)) = 1
   expect(l.screenSide).toBe(1);
-  expect(l.controlSize).toBe(80);
+  expect(l.controlSize).toBe(110);
 });

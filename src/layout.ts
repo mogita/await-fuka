@@ -10,7 +10,10 @@ export type Layout = {
 // Vertical layouts (small/large): strip at the bottom, height-bound.
 // Horizontal layout (medium): strip on the right, width-bound.
 const VERTICAL_STRIP_MIN = 40;
-const HORIZONTAL_STRIP_MIN = 80;
+// 110 keeps the LED dominant on medium (~228 wide screen on a 338 widget) while
+// giving each of the three horizontally-arranged buttons ~37px width — narrow
+// but tappable. 80 made buttons ~27px wide, smaller than comfortable.
+const HORIZONTAL_STRIP_MIN = 110;
 
 export function layoutFor(family: string, size: {width: number; height: number}): Layout {
   const direction: Direction = family === 'medium' ? 'horizontal' : 'vertical';
