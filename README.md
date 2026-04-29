@@ -3,13 +3,15 @@
   <h3 align="center">Fuka</h3>
 </p>
 
-Fuka is a PoC of simple game making in [await](https://apps.apple.com/app/id6755678187). The name Fuka means hatching in Japanese (孵化). It's inspired by Tamagotchi, a handheld digital pet created in Japan in the 1990s. The goal of Fuka is to create a simple game where players can hatch and take care of virtual pets.
+Fuka is a PoC of game making in [await](https://apps.apple.com/app/id6755678187). The name Fuka means hatching in Japanese (孵化). It's inspired by Tamagotchi, a handheld digital pet created in Japan in the 1990s. The goal of Fuka is to create a simple game where players can hatch and take care of virtual pets.
+
+Let your pet hatch from an egg, feed it, clean it, and watch it grow!
 
 [Await widget skill](https://github.com/await-widget/skills) is used to create the game.
 
 ## Development
 
-To initialize the project, run the following commands (`bun` is needed):
+To initialize the project, run the following commands ([`bun`](https://bun.sh) is needed):
 
 ```
 git clone https://github.com/mogita/await-fuka
@@ -23,7 +25,7 @@ To build the project, run:
 bun build
 ```
 
-## Installation and Usage
+## Installation and Playing
 
 After building, copy the file `build/index.tsx` to `await` to see it in action.
 
