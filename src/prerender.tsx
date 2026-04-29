@@ -11,11 +11,7 @@ import {
   filledHeart,
   hollowHeart,
 } from './sprites';
-
-// Color palette (Game Boy LCD-inspired). Hex strings without '#' match the
-// runtime's RawColor type. LED_FG paints "lit" cells, LED_BG is transparent
-// (we leave background up to the surrounding view).
-const LED_FG = '0f380f';
+import {LED_FG} from './config';
 
 // All sprites pre-render at 8px per cell. 24x24 sprites = 192x192, 12x6 icons
 // = 96x48, 9x9 poop = 72x72, 5x5 hearts = 40x40.

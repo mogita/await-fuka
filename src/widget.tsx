@@ -3,6 +3,7 @@ import {GameState} from './state';
 import {layoutFor} from './layout';
 import {ControlPanel} from './components/ControlPanel';
 import {petAssetUrl, feedIconUrl, cleanIconUrl, POOP_URL, HEART_FILLED_URL, HEART_HOLLOW_URL} from './assets';
+import {LED_BG, LED_FG} from './config';
 
 export type WidgetProps = {
   family: WidgetFamily;
@@ -13,10 +14,6 @@ export type WidgetProps = {
   executeIntent: IntentInfo;
   cancelIntent: IntentInfo;
 };
-
-// Game Boy LCD palette. Hex strings without '#' match the runtime's RawColor.
-const LED_BG = '9bbc0f';
-const LED_FG = '0f380f';
 
 // Layout proportions inside the screen square. All percentages of screenSide,
 // so the layout scales with widget size. Positions are vertical offsets from
