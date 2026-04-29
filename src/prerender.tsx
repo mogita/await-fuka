@@ -45,9 +45,12 @@ function renderBitmap(sprite: readonly number[][], brightness: number = 1): Nati
   );
 }
 
-// Bypass pre-render in widget context (where saveUIRenderImage is unavailable
-// and CPU/memory budget is tight). Also short-circuit if all 19 expected
-// assets are already cached on disk.
+// Bypass pre-render only when explicitly identified as widget context.
+// AwaitEnv.host on the Await app preview may not be exactly 'app' (could be a
+// preview-specific value), so we use a permissive check: skip iff host is
+// exactly 'widget'. App, preview, or anything else proceeds. The
+// file-existence check below is the second guard and the one that actually
+// short-circuits repeat runs.
 const ASSET_NAMES: readonly string[] = [
   'icon-feed-normal.png',
   'icon-feed-selected.png',
@@ -71,7 +74,7 @@ const ASSET_NAMES: readonly string[] = [
 ];
 
 export function preRender(): void {
-  if (AwaitEnv.host !== 'app') return;
+  if (AwaitEnv.host === 'widget') return;
 
   const fileSet = new Set(AwaitFile.files('assets'));
   const hasAll = ASSET_NAMES.every(name => fileSet.has(`assets/${name}`));
