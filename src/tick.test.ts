@@ -278,3 +278,29 @@ test('tick: idempotent on a starving pet', () => {
 	const s2 = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 1.5, 1)
 	expect(s2).toEqual(s)
 })
+
+test('nextInterestingMoment: includes weight boundary when starving', () => {
+	let s = freshState(0)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = {
+		...s,
+		hunger: 0,
+		hungerZeroSince: HATCH_DURATION_MS,
+		weightLastCheckAt: HATCH_DURATION_MS,
+		hasPoop: true, // remove poop candidate
+	}
+	const next = nextInterestingMoment(s, HATCH_DURATION_MS, 1)
+	expect(next).toBe(HATCH_DURATION_MS + HUNGER_INTERVAL_MS)
+})
+
+test('nextInterestingMoment: includes rejection expiry when set', () => {
+	let s = freshState(0)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = {
+		...s,
+		rejection: { until: HATCH_DURATION_MS + 100 },
+	}
+	expect(nextInterestingMoment(s, HATCH_DURATION_MS, 1)).toBe(
+		HATCH_DURATION_MS + 100,
+	)
+})
