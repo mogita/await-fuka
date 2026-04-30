@@ -1,4 +1,5 @@
 import { GameState, MenuCursor } from './state'
+import { HAPPY_THRESHOLDS } from './config'
 
 export type PetAnimSpec = {
 	urls: readonly [string, string]
@@ -21,11 +22,16 @@ const PET_EATING_URLS = [
 	'assets/pet-eating-0.png',
 	'assets/pet-eating-2.png',
 ] as const
+const PET_SHAKE_URLS = [
+	'assets/pet-shake-0.png',
+	'assets/pet-shake-1.png',
+] as const
 
 export function petAnimSpec(state: GameState): PetAnimSpec {
 	if (state.stage === 'egg') return { urls: PET_EGG_URLS }
 	if (state.action?.kind === 'feed') return { urls: PET_EATING_URLS }
 	if (state.action?.kind === 'clean') return { urls: PET_HAPPY_URLS }
+	if (state.rejection !== undefined) return { urls: PET_SHAKE_URLS }
 	if (state.hunger === 0) return { urls: PET_HUNGRY_URLS }
 	return { urls: PET_IDLE_URLS }
 }
@@ -40,6 +46,18 @@ export function cleanIconUrl(cursor: MenuCursor): string {
 	return cursor === 'clean'
 		? 'assets/icon-clean-selected.png'
 		: 'assets/icon-clean-normal.png'
+}
+
+export function statsIconUrl(cursor: MenuCursor): string {
+	return cursor === 'stats'
+		? 'assets/icon-stats-selected.png'
+		: 'assets/icon-stats-normal.png'
+}
+
+export function happinessFaceUrl(value: number): string {
+	if (value <= HAPPY_THRESHOLDS.sad) return 'assets/face-sad.png'
+	if (value <= HAPPY_THRESHOLDS.grim) return 'assets/face-grim.png'
+	return 'assets/face-smile.png'
 }
 
 export const POOP_URL = 'assets/poop.png'

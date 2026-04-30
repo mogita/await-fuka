@@ -62,3 +62,65 @@ test('cleanIconUrl: returns selected when cursor=clean, normal otherwise', () =>
 	expect(cleanIconUrl('feed')).toBe('assets/icon-clean-normal.png')
 	expect(cleanIconUrl('stats')).toBe('assets/icon-clean-normal.png')
 })
+
+import { happinessFaceUrl, statsIconUrl } from './assets'
+
+test('happinessFaceUrl: 100 returns smile', () => {
+	expect(happinessFaceUrl(100)).toBe('assets/face-smile.png')
+})
+
+test('happinessFaceUrl: 67 returns smile (above grim threshold)', () => {
+	expect(happinessFaceUrl(67)).toBe('assets/face-smile.png')
+})
+
+test('happinessFaceUrl: 66 returns grim (at grim threshold)', () => {
+	expect(happinessFaceUrl(66)).toBe('assets/face-grim.png')
+})
+
+test('happinessFaceUrl: 34 returns grim (above sad threshold)', () => {
+	expect(happinessFaceUrl(34)).toBe('assets/face-grim.png')
+})
+
+test('happinessFaceUrl: 33 returns sad (at sad threshold)', () => {
+	expect(happinessFaceUrl(33)).toBe('assets/face-sad.png')
+})
+
+test('happinessFaceUrl: 0 returns sad', () => {
+	expect(happinessFaceUrl(0)).toBe('assets/face-sad.png')
+})
+
+test('statsIconUrl: stats cursor returns selected', () => {
+	expect(statsIconUrl('stats')).toBe('assets/icon-stats-selected.png')
+})
+
+test('statsIconUrl: feed cursor returns normal', () => {
+	expect(statsIconUrl('feed')).toBe('assets/icon-stats-normal.png')
+})
+
+test('statsIconUrl: clean cursor returns normal', () => {
+	expect(statsIconUrl('clean')).toBe('assets/icon-stats-normal.png')
+})
+
+test('petAnimSpec: rejection (no action) returns shake frames', () => {
+	const s = pet({ rejection: { until: 999999 } })
+	const spec = petAnimSpec(s)
+	expect(spec.urls).toEqual([
+		'assets/pet-shake-0.png',
+		'assets/pet-shake-1.png',
+	])
+})
+
+test('petAnimSpec: rejection wins over hunger=0', () => {
+	const s = pet({ hunger: 0, rejection: { until: 999999 } })
+	const spec = petAnimSpec(s)
+	expect(spec.urls[0]).toBe('assets/pet-shake-0.png')
+})
+
+test('petAnimSpec: action wins over rejection', () => {
+	const s = pet({
+		action: { kind: 'feed', until: 999999 },
+		rejection: { until: 999999 },
+	})
+	const spec = petAnimSpec(s)
+	expect(spec.urls[0]).toBe('assets/pet-eating-0.png')
+})
