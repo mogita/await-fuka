@@ -1,10 +1,10 @@
-import { ZStack, HStack, VStack, Text } from 'await'
+import { ZStack, HStack, VStack } from 'await'
 import { GameState } from './state'
 import { layoutFor } from './layout'
 import { ControlPanel } from './components/ControlPanel'
 import { PetScreen } from './components/PetScreen'
 import { MenuScreen } from './components/MenuScreen'
-import { LED_BG, LED_FG } from './config'
+import { StatsScreen } from './components/StatsScreen'
 
 export type WidgetProps = {
 	family: WidgetFamily
@@ -15,18 +15,9 @@ export type WidgetProps = {
 	cancelIntent: IntentInfo
 }
 
-function StatsPlaceholder({ side }: { side: number }) {
-	// Real stats lands in Task 13.
-	return (
-		<ZStack maxSides background={LED_BG}>
-			<Text value='STATS' foreground={LED_FG} minimumScaleFactor={0.5} />
-		</ZStack>
-	)
-}
-
 function ScreenArea({ state, side }: { state: GameState; side: number }) {
 	if (state.screen === 'menu') return <MenuScreen state={state} side={side} />
-	if (state.screen === 'stats') return <StatsPlaceholder side={side} />
+	if (state.screen === 'stats') return <StatsScreen state={state} side={side} />
 	return <PetScreen state={state} side={side} />
 }
 
