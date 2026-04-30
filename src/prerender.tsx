@@ -19,6 +19,7 @@ import {
 import { LED_FG } from './config'
 
 const CELL_SIZE = 8
+const ASSET_HASH_KEY = 'fuka.assets.hash'
 
 function renderBitmap(
 	sprite: readonly number[][],
@@ -44,41 +45,43 @@ function renderBitmap(
 	)
 }
 
-const ASSET_NAMES: readonly string[] = [
-	'icon-feed-normal.png',
-	'icon-feed-selected.png',
-	'icon-clean-normal.png',
-	'icon-clean-selected.png',
-	'icon-stats-normal.png',
-	'icon-stats-selected.png',
-	'pet-egg-0.png',
-	'pet-egg-1.png',
-	'pet-idle-0.png',
-	'pet-idle-1.png',
-	'pet-hungry-0.png',
-	'pet-hungry-1.png',
-	'pet-eating-0.png',
-	'pet-eating-1.png',
-	'pet-eating-2.png',
-	'pet-eating-3.png',
-	'pet-happy-0.png',
-	'pet-happy-1.png',
-	'pet-shake-0.png',
-	'pet-shake-1.png',
-	'face-smile-2.png',
-	'face-grim-2.png',
-	'face-sad-2.png',
-	'poop.png',
-	'heart-filled.png',
-	'heart-hollow.png',
-]
+// FNV-1a 32-bit hash over JSON.stringify of every sprite import. Used to
+// detect bitmap changes between bundle versions so the prerender knows when
+// to regenerate the on-disk PNG cache. Cheap to compute (small integer
+// arrays, runs once per Await app launch) and orders-of-magnitude smaller
+// than the existing renderBitmap pass.
+function hashSprites(): number {
+	const data = JSON.stringify([
+		eggAnim.frames,
+		petIdleAnim.frames,
+		petHungryAnim.frames,
+		petEatingAnim.frames,
+		petHappyAnim.frames,
+		petShakeAnim.frames,
+		poopSprite,
+		feedIcon,
+		cleanIcon,
+		statsIcon,
+		filledHeart,
+		hollowHeart,
+		faceSmile,
+		faceGrim,
+		faceSad,
+	])
+	let h = 0x811c9dc5
+	for (let i = 0; i < data.length; i++) {
+		h ^= data.charCodeAt(i)
+		h = Math.imul(h, 0x01000193) >>> 0
+	}
+	return h
+}
 
 export function preRender(): void {
 	if (AwaitEnv.host === 'widget') return
 
-	const fileSet = new Set(AwaitFile.files('assets'))
-	const hasAll = ASSET_NAMES.every((name) => fileSet.has(`assets/${name}`))
-	if (hasAll) return
+	const currentHash = hashSprites()
+	const storedHash = AwaitStore.get(ASSET_HASH_KEY)
+	if (storedHash === currentHash) return
 
 	AwaitFile.saveUIRenderImage(
 		'assets/icon-feed-normal.png',
@@ -142,9 +145,9 @@ export function preRender(): void {
 		)
 	}
 
-	AwaitFile.saveUIRenderImage('assets/face-smile-2.png', renderBitmap(faceSmile))
-	AwaitFile.saveUIRenderImage('assets/face-grim-2.png', renderBitmap(faceGrim))
-	AwaitFile.saveUIRenderImage('assets/face-sad-2.png', renderBitmap(faceSad))
+	AwaitFile.saveUIRenderImage('assets/face-smile.png', renderBitmap(faceSmile))
+	AwaitFile.saveUIRenderImage('assets/face-grim.png', renderBitmap(faceGrim))
+	AwaitFile.saveUIRenderImage('assets/face-sad.png', renderBitmap(faceSad))
 
 	AwaitFile.saveUIRenderImage('assets/poop.png', renderBitmap(poopSprite))
 	AwaitFile.saveUIRenderImage(
@@ -155,4 +158,6 @@ export function preRender(): void {
 		'assets/heart-hollow.png',
 		renderBitmap(hollowHeart),
 	)
+
+	AwaitStore.set(ASSET_HASH_KEY, currentHash as Encodable)
 }

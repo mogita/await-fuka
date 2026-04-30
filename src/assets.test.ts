@@ -70,27 +70,27 @@ test('cleanIconUrl: returns selected when cursor=clean, normal otherwise', () =>
 })
 
 test('happinessFaceUrl: 100 returns smile', () => {
-	expect(happinessFaceUrl(100)).toBe('assets/face-smile-2.png')
+	expect(happinessFaceUrl(100)).toBe('assets/face-smile.png')
 })
 
 test('happinessFaceUrl: 67 returns smile (above grim threshold)', () => {
-	expect(happinessFaceUrl(67)).toBe('assets/face-smile-2.png')
+	expect(happinessFaceUrl(67)).toBe('assets/face-smile.png')
 })
 
 test('happinessFaceUrl: 66 returns grim (at grim threshold)', () => {
-	expect(happinessFaceUrl(66)).toBe('assets/face-grim-2.png')
+	expect(happinessFaceUrl(66)).toBe('assets/face-grim.png')
 })
 
 test('happinessFaceUrl: 34 returns grim (above sad threshold)', () => {
-	expect(happinessFaceUrl(34)).toBe('assets/face-grim-2.png')
+	expect(happinessFaceUrl(34)).toBe('assets/face-grim.png')
 })
 
 test('happinessFaceUrl: 33 returns sad (at sad threshold)', () => {
-	expect(happinessFaceUrl(33)).toBe('assets/face-sad-2.png')
+	expect(happinessFaceUrl(33)).toBe('assets/face-sad.png')
 })
 
 test('happinessFaceUrl: 0 returns sad', () => {
-	expect(happinessFaceUrl(0)).toBe('assets/face-sad-2.png')
+	expect(happinessFaceUrl(0)).toBe('assets/face-sad.png')
 })
 
 test('statsIconUrl: stats cursor returns selected', () => {
