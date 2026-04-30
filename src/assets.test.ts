@@ -1,5 +1,11 @@
 import { test, expect } from 'bun:test'
-import { petAnimSpec, feedIconUrl, cleanIconUrl } from './assets'
+import {
+	cleanIconUrl,
+	feedIconUrl,
+	happinessFaceUrl,
+	petAnimSpec,
+	statsIconUrl,
+} from './assets'
 import { freshState, GameState } from './state'
 
 function pet(overrides: Partial<GameState> = {}): GameState {
@@ -62,8 +68,6 @@ test('cleanIconUrl: returns selected when cursor=clean, normal otherwise', () =>
 	expect(cleanIconUrl('feed')).toBe('assets/icon-clean-normal.png')
 	expect(cleanIconUrl('stats')).toBe('assets/icon-clean-normal.png')
 })
-
-import { happinessFaceUrl, statsIconUrl } from './assets'
 
 test('happinessFaceUrl: 100 returns smile', () => {
 	expect(happinessFaceUrl(100)).toBe('assets/face-smile.png')
