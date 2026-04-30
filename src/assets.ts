@@ -1,13 +1,5 @@
 import { GameState, MenuCursor } from './state'
 
-// Pure URL resolution. The widget calls these to look up which pre-rendered
-// PNG to display for the current state. All pet animations are 2-frame cycles
-// driven by the Widget font's fs02 mask (1-second cycle, 0.5s per frame).
-// Eating uses frames 0 and 2 from the original 4-frame cycle to keep the
-// mouth-open vs mouth-closed contrast.
-// Asset names must stay in sync with prerender.tsx (the source of truth for
-// what gets saved).
-
 export type PetAnimSpec = {
 	urls: readonly [string, string]
 }

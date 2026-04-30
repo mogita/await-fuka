@@ -31,14 +31,14 @@ test('tick: pet hunger decays one heart per interval', () => {
 	let s = freshState(0)
 	s = tick(s, HATCH_DURATION_MS, 1) // hatch first
 	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS, 1)
-	expect(s.hunger).toBe(3)
+	expect(s.hunger).toBe(4)
 })
 
 test('tick: pet hunger decays multiple intervals at once', () => {
 	let s = freshState(0)
 	s = tick(s, HATCH_DURATION_MS, 1)
 	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 2, 1)
-	expect(s.hunger).toBe(2)
+	expect(s.hunger).toBe(3)
 })
 
 test('tick: pet hunger preserves fractional progress', () => {
@@ -46,7 +46,7 @@ test('tick: pet hunger preserves fractional progress', () => {
 	s = tick(s, HATCH_DURATION_MS, 1)
 	// 1.5 intervals: drop 1 heart, lastHungerCheckAt advances by 1 interval
 	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 1.5, 1)
-	expect(s.hunger).toBe(3)
+	expect(s.hunger).toBe(4)
 	expect(s.lastHungerCheckAt).toBe(HATCH_DURATION_MS + HUNGER_INTERVAL_MS)
 })
 

@@ -12,7 +12,7 @@ test('petAnimSpec: egg stage returns 2 egg frames', () => {
 	expect(spec.urls).toEqual(['assets/pet-egg-0.png', 'assets/pet-egg-1.png'])
 })
 
-test('petAnimSpec: feed action returns 2 eating frames (open and closed mouth)', () => {
+test('petAnimSpec: feed action returns 2 eating frames', () => {
 	const s = pet({ action: { kind: 'feed', until: 999999 } })
 	const spec = petAnimSpec(s)
 	expect(spec.urls).toEqual([
@@ -54,11 +54,11 @@ test('petAnimSpec: action takes priority over hunger=0', () => {
 test('feedIconUrl: returns selected when cursor=feed, normal otherwise', () => {
 	expect(feedIconUrl('feed')).toBe('assets/icon-feed-selected.png')
 	expect(feedIconUrl('clean')).toBe('assets/icon-feed-normal.png')
-	expect(feedIconUrl('none')).toBe('assets/icon-feed-normal.png')
+	expect(feedIconUrl('stats')).toBe('assets/icon-feed-normal.png')
 })
 
 test('cleanIconUrl: returns selected when cursor=clean, normal otherwise', () => {
 	expect(cleanIconUrl('clean')).toBe('assets/icon-clean-selected.png')
 	expect(cleanIconUrl('feed')).toBe('assets/icon-clean-normal.png')
-	expect(cleanIconUrl('none')).toBe('assets/icon-clean-normal.png')
+	expect(cleanIconUrl('stats')).toBe('assets/icon-clean-normal.png')
 })

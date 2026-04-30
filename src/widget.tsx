@@ -1,4 +1,4 @@
-import { ZStack, HStack, VStack, Image, Rectangle, Time } from 'await'
+import { ZStack, HStack, VStack, Image, Rectangle, Time, Text } from 'await'
 import { GameState } from './state'
 import { layoutFor } from './layout'
 import { ControlPanel } from './components/ControlPanel'
@@ -21,29 +21,18 @@ export type WidgetProps = {
 	cancelIntent: IntentInfo
 }
 
-// Layout proportions inside the screen square. All percentages of screenSide,
-// so the layout scales with widget size. Positions are vertical offsets from
-// the top of the screen square (no baking in absolute pixel constants).
-const MENU_HEIGHT_PCT = 0.16 // top strip with feed/clean icons
-const ICON_HEIGHT_PCT = 0.1 // each menu icon's height
-const PET_SIZE_PCT = 0.5 // pet sprite (square)
-const PET_CENTER_Y_PCT = 0.45 // pet sprite vertical center
+const PET_SIZE_PCT = 0.5
+const PET_CENTER_Y_PCT = 0.4
 const POOP_SIZE_PCT = 0.18
-const POOP_OFFSET_X_PCT = 0.32 // poop right of pet center
-const POOP_OFFSET_Y_PCT = 0.1 // poop slightly below pet center
-const GROUND_Y_PCT = 0.73 // ground line vertical position
-const GROUND_HEIGHT_PCT = 0.012 // ground line thickness (relative)
+const POOP_OFFSET_X_PCT = 0.32
+const POOP_OFFSET_Y_PCT = 0.1
+const GROUND_Y_PCT = 0.73
+const GROUND_HEIGHT_PCT = 0.012
 const GROUND_WIDTH_PCT = 0.85
-const HEART_ROW_Y_PCT = 0.85 // hearts row center
+const HEART_ROW_Y_PCT = 0.85
 const HEART_SIZE_PCT = 0.1
 const HEART_GAP_PCT = 0.025
 
-// Build the pet sprite as a ZStack of two Images, each gated by a fs02 Time
-// mask. The fs02 feature renders a square that's "on" for 0.5s of every 1s
-// cycle. By giving the two masks dates 1s apart (aligned to a minute boundary
-// so phases are stable), the two masks are 180-degrees out of phase and exactly
-// one Image is visible at any moment. Net: 2-frame alternating animation
-// driven by the runtime's wall clock, no timeline entries needed.
 function buildPetAnim(
 	state: GameState,
 	side: number,
@@ -80,16 +69,8 @@ function buildPetAnim(
 	)
 }
 
-type ScreenAreaProps = {
-	state: GameState
-	side: number
-}
-
-function ScreenArea({ state, side }: ScreenAreaProps) {
+function PetScreen({ state, side }: { state: GameState; side: number }) {
 	const isPet = state.stage === 'pet'
-
-	const menuHeight = side * MENU_HEIGHT_PCT
-	const iconSize = side * ICON_HEIGHT_PCT
 	const petSize = side * PET_SIZE_PCT
 	const petCenterY = side * PET_CENTER_Y_PCT
 	const poopSize = side * POOP_SIZE_PCT
@@ -101,33 +82,9 @@ function ScreenArea({ state, side }: ScreenAreaProps) {
 	const heartRowY = side * HEART_ROW_Y_PCT
 	const heartSize = side * HEART_SIZE_PCT
 	const heartGap = side * HEART_GAP_PCT
-
 	const halfSide = side / 2
 
-	// ZStack centers all children. We translate from center to the desired
-	// position via offset = {x, y}. y is signed: negative = up, positive = down.
-	const menuStrip = isPet ? (
-		<HStack
-			spacing={iconSize}
-			offset={{ x: 0, y: -(halfSide - menuHeight / 2) }}
-		>
-			<Image
-				url={feedIconUrl(state.menuCursor)}
-				resizable
-				interpolation='none'
-				frame={{ width: iconSize * 2, height: iconSize }}
-			/>
-			<Image
-				url={cleanIconUrl(state.menuCursor)}
-				resizable
-				interpolation='none'
-				frame={{ width: iconSize * 2, height: iconSize }}
-			/>
-		</HStack>
-	) : undefined
-
 	const pet = buildPetAnim(state, petSize, petCenterY - halfSide)
-
 	const poop =
 		isPet && state.hasPoop ? (
 			<Image
@@ -138,7 +95,6 @@ function ScreenArea({ state, side }: ScreenAreaProps) {
 				offset={{ x: poopOffsetX, y: petCenterY - halfSide + poopOffsetY }}
 			/>
 		) : undefined
-
 	const ground = isPet ? (
 		<Rectangle
 			fill={LED_FG}
@@ -147,10 +103,9 @@ function ScreenArea({ state, side }: ScreenAreaProps) {
 			offset={{ x: 0, y: groundY - halfSide }}
 		/>
 	) : undefined
-
 	const hearts = isPet ? (
 		<HStack spacing={heartGap} offset={{ x: 0, y: heartRowY - halfSide }}>
-			{[0, 1, 2, 3].map((i) => (
+			{[0, 1, 2, 3, 4].map((i) => (
 				<Image
 					url={i < state.hunger ? HEART_FILLED_URL : HEART_HOLLOW_URL}
 					resizable
@@ -161,18 +116,55 @@ function ScreenArea({ state, side }: ScreenAreaProps) {
 		</HStack>
 	) : undefined
 
-	// maxSides expands the ZStack to fill the parent's allocated space; background
-	// (declared AFTER maxSides) paints LED_BG over the expanded frame, including
-	// any margin around the design-square area used for sprite positioning.
 	return (
 		<ZStack maxSides background={LED_BG}>
-			{menuStrip}
 			{pet}
 			{poop}
 			{ground}
 			{hearts}
 		</ZStack>
 	)
+}
+
+function MenuPlaceholder({ state, side }: { state: GameState; side: number }) {
+	// Real menu lands in Task 11.
+	return (
+		<ZStack maxSides background={LED_BG}>
+			<HStack spacing={side * 0.05}>
+				<Image
+					url={feedIconUrl(state.menuCursor)}
+					resizable
+					interpolation='none'
+					frame={{ width: side * 0.25, height: side * 0.125 }}
+				/>
+				<Image
+					url={cleanIconUrl(state.menuCursor)}
+					resizable
+					interpolation='none'
+					frame={{ width: side * 0.25, height: side * 0.125 }}
+				/>
+			</HStack>
+		</ZStack>
+	)
+}
+
+function StatsPlaceholder({ side }: { side: number }) {
+	// Real stats lands in Task 13.
+	return (
+		<ZStack maxSides background={LED_BG}>
+			<Text
+				value='STATS'
+				foreground={LED_FG}
+				minimumScaleFactor={0.5}
+			/>
+		</ZStack>
+	)
+}
+
+function ScreenArea({ state, side }: { state: GameState; side: number }) {
+	if (state.screen === 'menu') return <MenuPlaceholder state={state} side={side} />
+	if (state.screen === 'stats') return <StatsPlaceholder side={side} />
+	return <PetScreen state={state} side={side} />
 }
 
 export function widget(props: WidgetProps) {
