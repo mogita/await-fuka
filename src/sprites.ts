@@ -535,6 +535,18 @@ export const cleanIcon: readonly number[][] = [
 	[1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
 ]
 
+// 12x6 stats icon: ascending bar chart, three vertical bars of increasing
+// height. Same brightness convention as feed/clean icons (rendered dim or
+// full-brightness via prerender's brightness multiplier).
+export const statsIcon: readonly number[][] = [
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+	[0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+	[0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+	[0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+	[0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+]
+
 // 5x5 filled heart: two upper lobes with a clear bottom tip.
 export const filledHeart: readonly number[][] = [
 	[0, 1, 0, 1, 0],
