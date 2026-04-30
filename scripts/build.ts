@@ -8,8 +8,12 @@ const FILES = [
 	'src/state.ts',
 	'src/tick.ts',
 	'src/assets.ts',
+	'src/age.ts',
 	'src/prerender.tsx',
 	'src/components/ControlPanel.tsx',
+	'src/components/PetScreen.tsx',
+	'src/components/MenuScreen.tsx',
+	'src/components/StatsScreen.tsx',
 	'src/widget.tsx',
 	'src/intents.ts',
 	'src/timeline.ts',
@@ -17,7 +21,7 @@ const FILES = [
 ]
 
 const NAMED_IMPORT =
-	/import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"])\s*;?/g
+	/import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"])[ \t]*;?/g
 
 await rm('./build', { recursive: true, force: true })
 await mkdir('./build', { recursive: true })
@@ -85,3 +89,19 @@ const output = `${header}\n${about}\n${author}\n${license}\n${awaitImport}\n\n${
 
 await writeFile('./build/index.tsx', output)
 console.log(`Built build/index.tsx (${output.length} bytes)`)
+
+const proc = Bun.spawn(
+	['bunx', 'esbuild', './build/index.tsx', '--bundle=false', '--log-level=error'],
+	{
+		stderr: 'pipe',
+		stdout: 'pipe',
+	},
+)
+const stderr = await new Response(proc.stderr).text()
+const code = await proc.exited
+if (code !== 0) {
+	console.error(stderr)
+	console.error('Bundle validation FAILED.')
+	process.exit(1)
+}
+console.log('Bundle validation OK.')
