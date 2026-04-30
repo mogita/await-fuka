@@ -21,8 +21,7 @@ export function StatsScreen({ state, side }: Props) {
 	const faceSize = side * FACE_SIZE_PCT
 	const rowGap = side * ROW_GAP_PCT
 
-	const slots: number[] = []
-	for (let i = 0; i < HUNGER_MAX; i++) slots.push(i)
+	const slots = Array.from({ length: HUNGER_MAX }, (_, i) => i)
 	const hungerRow = (
 		<HStack spacing={heartGap}>
 			{slots.map((i) => (

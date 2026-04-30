@@ -21,7 +21,7 @@ const FILES = [
 ]
 
 const NAMED_IMPORT =
-	/import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"]);?/g
+	/import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"])[ \t]*;?/g
 
 await rm('./build', { recursive: true, force: true })
 await mkdir('./build', { recursive: true })

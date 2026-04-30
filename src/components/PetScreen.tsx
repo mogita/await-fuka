@@ -92,8 +92,7 @@ export function PetScreen({ state, side }: Props) {
 			offset={{ x: 0, y: groundY - halfSide }}
 		/>
 	) : undefined
-	const heartSlots: number[] = []
-	for (let i = 0; i < HUNGER_MAX; i++) heartSlots.push(i)
+	const heartSlots = Array.from({ length: HUNGER_MAX }, (_, i) => i)
 	const hearts = isPet ? (
 		<HStack spacing={heartGap} offset={{ x: 0, y: heartRowY - halfSide }}>
 			{heartSlots.map((i) => (
