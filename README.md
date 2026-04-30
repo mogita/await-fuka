@@ -25,6 +25,8 @@ To build the project, run:
 bun run build
 ```
 
+Code formatting is handled by [biome](https://biomejs.dev); a pre-commit hook runs `bun run format` on staged files.
+
 ## Installation and Playing
 
 After building, copy the file `build/index.tsx` to `await` to see it in action.
