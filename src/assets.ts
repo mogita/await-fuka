@@ -55,9 +55,9 @@ export function statsIconUrl(cursor: MenuCursor): string {
 }
 
 export function happinessFaceUrl(value: number): string {
-	if (value <= HAPPY_THRESHOLDS.sad) return 'assets/face-sad.png'
-	if (value <= HAPPY_THRESHOLDS.grim) return 'assets/face-grim.png'
-	return 'assets/face-smile.png'
+	if (value <= HAPPY_THRESHOLDS.sad) return 'assets/face-sad-2.png'
+	if (value <= HAPPY_THRESHOLDS.grim) return 'assets/face-grim-2.png'
+	return 'assets/face-smile-2.png'
 }
 
 export const POOP_URL = 'assets/poop.png'

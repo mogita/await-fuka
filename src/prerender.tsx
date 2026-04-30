@@ -65,9 +65,9 @@ const ASSET_NAMES: readonly string[] = [
 	'pet-happy-1.png',
 	'pet-shake-0.png',
 	'pet-shake-1.png',
-	'face-smile.png',
-	'face-grim.png',
-	'face-sad.png',
+	'face-smile-2.png',
+	'face-grim-2.png',
+	'face-sad-2.png',
 	'poop.png',
 	'heart-filled.png',
 	'heart-hollow.png',
@@ -142,9 +142,9 @@ export function preRender(): void {
 		)
 	}
 
-	AwaitFile.saveUIRenderImage('assets/face-smile.png', renderBitmap(faceSmile))
-	AwaitFile.saveUIRenderImage('assets/face-grim.png', renderBitmap(faceGrim))
-	AwaitFile.saveUIRenderImage('assets/face-sad.png', renderBitmap(faceSad))
+	AwaitFile.saveUIRenderImage('assets/face-smile-2.png', renderBitmap(faceSmile))
+	AwaitFile.saveUIRenderImage('assets/face-grim-2.png', renderBitmap(faceGrim))
+	AwaitFile.saveUIRenderImage('assets/face-sad-2.png', renderBitmap(faceSad))
 
 	AwaitFile.saveUIRenderImage('assets/poop.png', renderBitmap(poopSprite))
 	AwaitFile.saveUIRenderImage(
