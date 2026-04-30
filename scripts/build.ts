@@ -8,8 +8,12 @@ const FILES = [
 	'src/state.ts',
 	'src/tick.ts',
 	'src/assets.ts',
+	'src/age.ts',
 	'src/prerender.tsx',
 	'src/components/ControlPanel.tsx',
+	'src/components/PetScreen.tsx',
+	'src/components/MenuScreen.tsx',
+	'src/components/StatsScreen.tsx',
 	'src/widget.tsx',
 	'src/intents.ts',
 	'src/timeline.ts',
@@ -17,7 +21,7 @@ const FILES = [
 ]
 
 const NAMED_IMPORT =
-	/import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"])\s*;?/g
+	/import\s+(?:type\s+)?\{([^}]*?)\}\s+from\s+(['"][^'"]+['"]);?/g
 
 await rm('./build', { recursive: true, force: true })
 await mkdir('./build', { recursive: true })
