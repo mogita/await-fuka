@@ -3,11 +3,16 @@ import { tick } from './tick'
 import {
 	ACTION_FEEDBACK_MS,
 	HUNGER_MAX,
+	MASK_CYCLE_MS,
 	REJECTION_FEEDBACK_MS,
 	WEIGHT_CAP,
 	WEIGHT_GROWTH_FRACTION,
 	worldSpeed,
 } from './config'
+
+function alignToMaskCycle(t: number): number {
+	return Math.ceil(t / MASK_CYCLE_MS) * MASK_CYCLE_MS
+}
 
 const NEXT_CURSOR: Record<MenuCursor, MenuCursor> = {
 	feed: 'clean',
@@ -42,8 +47,8 @@ export function applyExecute(
 	if (state.stage === 'egg') return state
 	if (state.screen !== 'menu') return state
 
-	const actionDuration = ACTION_FEEDBACK_MS / ws
-	const rejectionDuration = REJECTION_FEEDBACK_MS / ws
+	const actionUntil = alignToMaskCycle(now + ACTION_FEEDBACK_MS / ws)
+	const rejectionUntil = alignToMaskCycle(now + REJECTION_FEEDBACK_MS / ws)
 
 	if (state.menuCursor === 'feed') {
 		const blocked = state.action !== undefined || state.hunger >= HUNGER_MAX
@@ -51,7 +56,7 @@ export function applyExecute(
 			return {
 				...state,
 				screen: 'pet',
-				rejection: { until: now + rejectionDuration },
+				rejection: { until: rejectionUntil },
 			}
 		}
 		const newWeight = Math.min(
@@ -63,7 +68,7 @@ export function applyExecute(
 			screen: 'pet',
 			hunger: state.hunger + 1,
 			weight: newWeight,
-			action: { kind: 'feed', until: now + actionDuration },
+			action: { kind: 'feed', until: actionUntil },
 		}
 	}
 
@@ -77,7 +82,7 @@ export function applyExecute(
 			screen: 'pet',
 			hasPoop: false,
 			lastPoopCheckAt: now,
-			action: { kind: 'clean', until: now + actionDuration },
+			action: { kind: 'clean', until: actionUntil },
 		}
 	}
 

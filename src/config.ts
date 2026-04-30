@@ -9,6 +9,13 @@ export const HATCH_DURATION_MS = 30 * 1000 // 30 sec
 export const ACTION_FEEDBACK_MS = 2000 // eating/cleaning sprite duration
 export const REJECTION_FEEDBACK_MS = 2000 // head-shake duration
 
+// fs02 mask cycle period for sprite frame alternation. The Widget font's
+// fs02 feature alternates phases every MASK_CYCLE_MS / 2 milliseconds.
+// Multiples of this value in Unix epoch time (60000 % 2000 == 0) align with
+// mask phase boundaries, so transient `until` values rounded up to the next
+// multiple end the animation at a clean phase boundary instead of mid-frame.
+export const MASK_CYCLE_MS = 2000
+
 // Hunger.
 export const HUNGER_MAX = 5
 export const FRESH_HUNGER = 5
