@@ -89,3 +89,19 @@ const output = `${header}\n${about}\n${author}\n${license}\n${awaitImport}\n\n${
 
 await writeFile('./build/index.tsx', output)
 console.log(`Built build/index.tsx (${output.length} bytes)`)
+
+const proc = Bun.spawn(
+	['bunx', 'esbuild', './build/index.tsx', '--bundle=false', '--log-level=error'],
+	{
+		stderr: 'pipe',
+		stdout: 'pipe',
+	},
+)
+const stderr = await new Response(proc.stderr).text()
+const code = await proc.exited
+if (code !== 0) {
+	console.error(stderr)
+	console.error('Bundle validation FAILED.')
+	process.exit(1)
+}
+console.log('Bundle validation OK.')

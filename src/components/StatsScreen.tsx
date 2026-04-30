@@ -8,16 +8,16 @@ import {
 import { HUNGER_MAX, LED_BG, LED_FG, worldSpeed } from '../config'
 import { formatAge } from '../age'
 
-const HEART_SIZE_PCT = 0.09
-const HEART_GAP_PCT = 0.025
+const STATS_HEART_SIZE_PCT = 0.09
+const STATS_HEART_GAP_PCT = 0.025
 const FACE_SIZE_PCT = 0.22
 const ROW_GAP_PCT = 0.05
 
 type Props = { state: GameState; side: number }
 
 export function StatsScreen({ state, side }: Props) {
-	const heartSize = side * HEART_SIZE_PCT
-	const heartGap = side * HEART_GAP_PCT
+	const heartSize = side * STATS_HEART_SIZE_PCT
+	const heartGap = side * STATS_HEART_GAP_PCT
 	const faceSize = side * FACE_SIZE_PCT
 	const rowGap = side * ROW_GAP_PCT
 
