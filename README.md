@@ -22,7 +22,7 @@ bun install
 To build the project, run:
 
 ```
-bun build
+bun run build
 ```
 
 ## Installation and Playing
