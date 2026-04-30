@@ -6,8 +6,8 @@ export const worldSpeed = 1
 export const HUNGER_INTERVAL_MS = 60 * 60 * 1000 // 60 min per heart drop
 export const POOP_INTERVAL_MS = 180 * 60 * 1000 // 3 hours
 export const HATCH_DURATION_MS = 30 * 1000 // 30 sec
-export const ACTION_FEEDBACK_MS = 800 // eating/cleaning sprite duration
-export const REJECTION_FEEDBACK_MS = 600 // head-shake duration
+export const ACTION_FEEDBACK_MS = 2000 // eating/cleaning sprite duration
+export const REJECTION_FEEDBACK_MS = 2000 // head-shake duration
 
 // Hunger.
 export const HUNGER_MAX = 5

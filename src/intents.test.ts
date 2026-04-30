@@ -47,7 +47,7 @@ test('applyExecute: feed succeeds when hunger<5 and no action', () => {
 	const r = applyExecute(s, 1000, 1)
 	expect(r.hunger).toBe(3)
 	expect(r.weight).toBeCloseTo(1 + (50 - 1) * 0.02, 5)
-	expect(r.action).toEqual({ kind: 'feed', until: 1000 + 800 })
+	expect(r.action).toEqual({ kind: 'feed', until: 1000 + 2000 })
 	expect(r.screen).toBe('pet')
 })
 
@@ -62,7 +62,7 @@ test('applyExecute: feed at hunger=5 sets rejection and returns to pet', () => {
 	expect(r.hunger).toBe(5)
 	expect(r.weight).toBe(5)
 	expect(r.action).toBeUndefined()
-	expect(r.rejection).toEqual({ until: 1000 + 600 })
+	expect(r.rejection).toEqual({ until: 1000 + 2000 })
 	expect(r.screen).toBe('pet')
 })
 
@@ -76,7 +76,7 @@ test('applyExecute: feed when action active sets rejection', () => {
 	const r = applyExecute(s, 1000, 1)
 	expect(r.hunger).toBe(2)
 	expect(r.action).toEqual({ kind: 'feed', until: 5000 })
-	expect(r.rejection).toEqual({ until: 1000 + 600 })
+	expect(r.rejection).toEqual({ until: 1000 + 2000 })
 	expect(r.screen).toBe('pet')
 })
 
@@ -101,7 +101,7 @@ test('applyExecute: clean succeeds when hasPoop and no action', () => {
 	const r = applyExecute(s, 1000, 1)
 	expect(r.hasPoop).toBe(false)
 	expect(r.lastPoopCheckAt).toBe(1000)
-	expect(r.action).toEqual({ kind: 'clean', until: 1000 + 800 })
+	expect(r.action).toEqual({ kind: 'clean', until: 1000 + 2000 })
 	expect(r.screen).toBe('pet')
 })
 
@@ -155,13 +155,13 @@ test('applyExecute: egg is no-op', () => {
 test('applyExecute: action duration scales with worldSpeed', () => {
 	const s = pet({ screen: 'menu', menuCursor: 'feed', hunger: 2 })
 	const r = applyExecute(s, 1000, 100)
-	expect(r.action!.until).toBe(1000 + 8) // 800 / 100
+	expect(r.action!.until).toBe(1000 + 20) // 2000 / 100
 })
 
 test('applyExecute: rejection duration scales with worldSpeed', () => {
 	const s = pet({ screen: 'menu', menuCursor: 'feed', hunger: 5 })
 	const r = applyExecute(s, 1000, 100)
-	expect(r.rejection!.until).toBe(1000 + 6) // 600 / 100
+	expect(r.rejection!.until).toBe(1000 + 20) // 2000 / 100
 })
 
 // applyCancel
