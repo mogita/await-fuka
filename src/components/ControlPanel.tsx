@@ -1,13 +1,13 @@
-import { HStack, Button, Text } from "await";
-import { Direction } from "../layout";
+import { HStack, Button, Text } from 'await'
+import { Direction } from '../layout'
 
 type Props = {
-	direction: Direction;
-	controlSize: number;
-	cycle: IntentInfo;
-	execute: IntentInfo;
-	cancel: IntentInfo;
-};
+	direction: Direction
+	controlSize: number
+	cycle: IntentInfo
+	execute: IntentInfo
+	cancel: IntentInfo
+}
 
 export function ControlPanel({
 	direction,
@@ -17,18 +17,18 @@ export function ControlPanel({
 	cancel,
 }: Props) {
 	const buttons = [
-		{ label: "A", intent: cycle },
-		{ label: "B", intent: execute },
-		{ label: "C", intent: cancel },
-	];
+		{ label: 'A', intent: cycle },
+		{ label: 'B', intent: execute },
+		{ label: 'C', intent: cancel },
+	]
 
 	// Constrain the strip's short axis. The long axis stays free to fill the
 	// widget. Without this, the strip absorbs all leftover space and dwarfs the
 	// intended thickness.
 	const frame =
-		direction === "horizontal"
+		direction === 'horizontal'
 			? { width: controlSize }
-			: { height: controlSize };
+			: { height: controlSize }
 
 	return (
 		<HStack spacing={0} background={0.1} frame={frame}>
@@ -38,5 +38,5 @@ export function ControlPanel({
 				</Button>
 			))}
 		</HStack>
-	);
+	)
 }

@@ -4,9 +4,9 @@
 // the active frame as floor(now / intervalMs) % frames.length so the cycle is
 // purely time-driven (no per-state animation phase carried in GameState).
 export type AnimatedSprite = {
-	frames: readonly (readonly number[][])[];
-	intervalMs: number;
-};
+	frames: readonly (readonly number[][])[]
+	intervalMs: number
+}
 
 // 24x24 egg, frame 0: vertical oval, narrower top, wider bottom, with a small
 // zigzag crack on the right side. Outline 1 cell thick, closed shape.
@@ -35,7 +35,7 @@ const eggFrame0: readonly number[][] = [
 	[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-];
+]
 
 // 24x24 egg, frame 1: same outline, crack stepped one row downward to suggest
 // the egg shifting / cracking further. Subtle wiggle.
@@ -64,12 +64,12 @@ const eggFrame1: readonly number[][] = [
 	[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-];
+]
 
 export const eggAnim: AnimatedSprite = {
 	frames: [eggFrame0, eggFrame1],
 	intervalMs: 700,
-};
+}
 
 // 24x24 idle pet, frame 0: rounded blob body filling most of the frame, sitting
 // squat. Two filled-dot eyes, small closed mouth (one row).
@@ -98,7 +98,7 @@ const petIdleFrame0: readonly number[][] = [
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
 	[0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-];
+]
 
 // 24x24 idle pet, frame 1: subtle breathing. Eyes and mouth shift down one row;
 // the top of the head appears slightly more rounded.
@@ -127,12 +127,12 @@ const petIdleFrame1: readonly number[][] = [
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
 	[0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-];
+]
 
 export const petIdleAnim: AnimatedSprite = {
 	frames: [petIdleFrame0, petIdleFrame1],
 	intervalMs: 1000,
-};
+}
 
 // 24x24 hungry pet, frame 0: same body shape, eyes are downward small lines,
 // mouth is a small frown line, body slumped slightly lower in the frame.
@@ -161,7 +161,7 @@ const petHungryFrame0: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 // 24x24 hungry pet, frame 1: same outline but the eyes droop one row further
 // (closer to the frown line). Reads as a slight slump / sigh.
@@ -190,12 +190,12 @@ const petHungryFrame1: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 export const petHungryAnim: AnimatedSprite = {
 	frames: [petHungryFrame0, petHungryFrame1],
 	intervalMs: 800,
-};
+}
 
 // 24x24 eating pet, frame 0: mouth wide open. Round filled oval mouth, puffed
 // cheeks. This is the "pre-bite" pose.
@@ -224,7 +224,7 @@ const petEatingFrame0: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 // 24x24 eating pet, frame 1: mouth half open. Smaller oval, transition pose.
 const petEatingFrame1: readonly number[][] = [
@@ -252,7 +252,7 @@ const petEatingFrame1: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 // 24x24 eating pet, frame 2: mouth closed (just a thin line). Full chew.
 const petEatingFrame2: readonly number[][] = [
@@ -280,16 +280,16 @@ const petEatingFrame2: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 // 24x24 eating pet, frame 3: mouth half open again (mirrors frame 1, completes
 // the chew cycle).
-const petEatingFrame3: readonly number[][] = petEatingFrame1;
+const petEatingFrame3: readonly number[][] = petEatingFrame1
 
 export const petEatingAnim: AnimatedSprite = {
 	frames: [petEatingFrame0, petEatingFrame1, petEatingFrame2, petEatingFrame3],
 	intervalMs: 200,
-};
+}
 
 // 24x24 happy pet, frame 0: right eye winks closed (line), left eye open
 // (filled), curved open smile.
@@ -318,7 +318,7 @@ const petHappyFrame0: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 // 24x24 happy pet, frame 1: opposite wink. Left eye line, right eye filled.
 // Reads as a playful jiggle/blink alternation.
@@ -347,12 +347,12 @@ const petHappyFrame1: readonly number[][] = [
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 export const petHappyAnim: AnimatedSprite = {
 	frames: [petHappyFrame0, petHappyFrame1],
 	intervalMs: 400,
-};
+}
 
 // 9x9 poop: stacked-swirl shape, wider at the bottom, tapering up.
 export const poopSprite: readonly number[][] = [
@@ -365,7 +365,7 @@ export const poopSprite: readonly number[][] = [
 	[1, 1, 1, 1, 1, 1, 1, 1, 1],
 	[1, 1, 0, 1, 0, 1, 0, 1, 1],
 	[1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
+]
 
 // 12x6 feed icon: single-stroke bowl outline with a horizontal noodle/chopstick
 // stroke above the rim. Centered in the left half of the menu strip.
@@ -376,7 +376,7 @@ export const feedIcon: readonly number[][] = [
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-];
+]
 
 // 12x6 clean icon: single-stroke broom. Vertical handle near the top, flaring
 // bristle lines below. Centered in the right half of the menu strip.
@@ -387,7 +387,7 @@ export const cleanIcon: readonly number[][] = [
 	[0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
 	[0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
 	[1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
-];
+]
 
 // 5x5 filled heart: two upper lobes with a clear bottom tip.
 export const filledHeart: readonly number[][] = [
@@ -396,7 +396,7 @@ export const filledHeart: readonly number[][] = [
 	[1, 1, 1, 1, 1],
 	[0, 1, 1, 1, 0],
 	[0, 0, 1, 0, 0],
-];
+]
 
 // 5x5 hollow heart: outline only with bottom tip.
 export const hollowHeart: readonly number[][] = [
@@ -405,4 +405,4 @@ export const hollowHeart: readonly number[][] = [
 	[1, 0, 0, 0, 1],
 	[0, 1, 0, 1, 0],
 	[0, 0, 1, 0, 0],
-];
+]
