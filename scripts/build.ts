@@ -74,6 +74,9 @@ for (const path of FILES) {
 	segments.push(content.trim())
 }
 
+const pkg = JSON.parse(await readFile('./package.json', 'utf8'))
+const version: string = pkg.version ?? '0.0.0'
+
 const awaitImport = `import {${[...awaitNames].sort().join(', ')}} from 'await';`
 const pad = (n: number) => String(n).padStart(2, '0')
 const d = new Date()
@@ -82,10 +85,11 @@ const d = new Date()
 // while a /* */ block with hyphen separators parses cleanly.
 const builtAt = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}h${pad(d.getMinutes())}m${pad(d.getSeconds())}s`
 const header = `/* Built ${builtAt} */`
+const versionLine = `/* Version: ${version} */`
 const about = `/* About: Fuka is a PoC of game making in "await" app. It's inspired by Tamagotchi. Source https://github.com/mogita/await-fuka */`
 const author = `/* Author: @mogita */`
 const license = `/* License: MIT */`
-const output = `${header}\n${about}\n${author}\n${license}\n${awaitImport}\n\n${segments.join('\n\n')}\n`
+const output = `${header}\n${versionLine}\n${about}\n${author}\n${license}\n${awaitImport}\n\n${segments.join('\n\n')}\n`
 
 await writeFile('./build/index.tsx', output)
 console.log(`Built build/index.tsx (${output.length} bytes)`)
