@@ -1,12 +1,12 @@
-import { ZStack, HStack, Image, Rectangle, Time } from 'await'
-import { GameState } from '../state'
+import { HStack, Image, Rectangle, Time, ZStack } from 'await'
 import {
-	petAnimSpec,
-	POOP_URL,
 	HEART_FILLED_URL,
 	HEART_HOLLOW_URL,
+	POOP_URL,
+	petAnimSpec,
 } from '../assets'
-import { LED_BG, LED_FG, HUNGER_MAX } from '../config'
+import { HUNGER_MAX, LED_BG, LED_FG } from '../config'
+import { GameState } from '../state'
 
 const PET_SIZE_PCT = 0.5
 const PET_CENTER_Y_PCT = 0.4

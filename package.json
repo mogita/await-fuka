@@ -5,11 +5,11 @@
 	"scripts": {
 		"build": "bun scripts/build.ts",
 		"typecheck": "tsc --noEmit",
-		"format": "biome format --write src scripts",
+		"fix": "biome check --write src scripts",
 		"prepare": "simple-git-hooks"
 	},
 	"simple-git-hooks": {
-		"pre-commit": "bun run format && git update-index --again"
+		"pre-commit": "bun run fix && git update-index --again"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.13",

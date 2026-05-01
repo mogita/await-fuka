@@ -1,4 +1,4 @@
-import { HStack, Button, Text } from 'await'
+import { Button, HStack, Text } from 'await'
 import { Direction } from '../layout'
 
 type Props = {

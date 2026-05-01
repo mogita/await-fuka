@@ -95,7 +95,13 @@ await writeFile('./build/index.tsx', output)
 console.log(`Built build/index.tsx (${output.length} bytes)`)
 
 const proc = Bun.spawn(
-	['bunx', 'esbuild', './build/index.tsx', '--bundle=false', '--log-level=error'],
+	[
+		'bunx',
+		'esbuild',
+		'./build/index.tsx',
+		'--bundle=false',
+		'--log-level=error',
+	],
 	{
 		stderr: 'pipe',
 		stdout: 'pipe',

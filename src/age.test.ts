@@ -1,4 +1,4 @@
-import { test, expect } from 'bun:test'
+import { expect, test } from 'bun:test'
 import { formatAge } from './age'
 
 test('formatAge: 0 ms returns 0m', () => {

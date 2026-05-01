@@ -1,6 +1,4 @@
-import { test, expect } from 'bun:test'
-import { tick, nextInterestingMoment } from './tick'
-import { freshState } from './state'
+import { expect, test } from 'bun:test'
 import {
 	HATCH_DURATION_MS,
 	HUNGER_INTERVAL_MS,
@@ -8,6 +6,8 @@ import {
 	POOP_INTERVAL_MS,
 	WEIGHT_FLOOR,
 } from './config'
+import { freshState } from './state'
+import { nextInterestingMoment, tick } from './tick'
 
 test('tick: stays as egg before hatch duration', () => {
 	const s = freshState(0)

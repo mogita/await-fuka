@@ -1,4 +1,3 @@
-import { GameState } from './state'
 import {
 	ADULT_WEIGHT,
 	HATCH_DURATION_MS,
@@ -7,6 +6,7 @@ import {
 	POOP_INTERVAL_MS,
 	WEIGHT_FLOOR,
 } from './config'
+import { GameState } from './state'
 
 export function tick(
 	state: GameState,

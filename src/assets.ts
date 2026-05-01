@@ -1,5 +1,5 @@
-import { GameState, MenuCursor } from './state'
 import { HAPPY_THRESHOLDS } from './config'
+import { GameState, MenuCursor } from './state'
 
 export type PetAnimSpec = {
 	urls: readonly [string, string]

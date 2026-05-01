@@ -1,10 +1,10 @@
-import { ZStack, HStack, VStack } from 'await'
-import { GameState } from './state'
-import { layoutFor } from './layout'
+import { HStack, VStack, ZStack } from 'await'
 import { ControlPanel } from './components/ControlPanel'
-import { PetScreen } from './components/PetScreen'
 import { MenuScreen } from './components/MenuScreen'
+import { PetScreen } from './components/PetScreen'
 import { StatsScreen } from './components/StatsScreen'
+import { layoutFor } from './layout'
+import { GameState } from './state'
 
 export type WidgetProps = {
 	family: WidgetFamily

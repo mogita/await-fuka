@@ -1,8 +1,8 @@
-import { widget } from './widget'
-import { widgetTimeline } from './timeline'
-import { cycle, execute, cancel } from './intents'
-import { GameState } from './state'
+import { cancel, cycle, execute } from './intents'
 import { preRender } from './prerender'
+import { GameState } from './state'
+import { widgetTimeline } from './timeline'
+import { widget } from './widget'
 
 // Pre-render the sprite PNGs on app load. No-op in widget context (host check)
 // and when all expected assets are already cached on disk. Runs synchronously

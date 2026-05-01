@@ -1,5 +1,3 @@
-import { GameState, MenuCursor, loadOrInit, save } from './state'
-import { tick } from './tick'
 import {
 	ACTION_FEEDBACK_MS,
 	HUNGER_MAX,
@@ -9,6 +7,8 @@ import {
 	WEIGHT_GROWTH_FRACTION,
 	worldSpeed,
 } from './config'
+import { GameState, loadOrInit, MenuCursor, save } from './state'
+import { tick } from './tick'
 
 function alignToMaskCycle(t: number): number {
 	return Math.ceil(t / MASK_CYCLE_MS) * MASK_CYCLE_MS

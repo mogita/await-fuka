@@ -1,6 +1,6 @@
+import { worldSpeed } from './config'
 import { GameState, loadOrInit, save } from './state'
 import { tick } from './tick'
-import { worldSpeed } from './config'
 
 // Adaptive timeline cadence. The await widget runtime clamps `update` refresh
 // intervals to a multi-minute minimum, so transient state (action / rejection)
@@ -22,8 +22,7 @@ export function widgetTimeline(_context: TimelineContext) {
 		ticked.action?.until ?? 0,
 		ticked.rejection?.until ?? 0,
 	)
-	const cadence =
-		transientUntil > now ? TRANSIENT_CADENCE_MS : IDLE_CADENCE_MS
+	const cadence = transientUntil > now ? TRANSIENT_CADENCE_MS : IDLE_CADENCE_MS
 
 	const entries: Array<{ date: Date; gameState: GameState }> = []
 	for (let i = 0; i < ENTRIES_PER_TIMELINE; i++) {

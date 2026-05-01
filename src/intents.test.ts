@@ -1,5 +1,5 @@
-import { test, expect } from 'bun:test'
-import { applyCycle, applyExecute, applyCancel } from './intents'
+import { expect, test } from 'bun:test'
+import { applyCancel, applyCycle, applyExecute } from './intents'
 import { freshState, GameState } from './state'
 
 function pet(overrides: Partial<GameState> = {}): GameState {
@@ -148,7 +148,11 @@ test('applyExecute: stats screen is no-op', () => {
 })
 
 test('applyExecute: egg is no-op', () => {
-	const s = { ...freshState(0), screen: 'menu' as const, menuCursor: 'feed' as const }
+	const s = {
+		...freshState(0),
+		screen: 'menu' as const,
+		menuCursor: 'feed' as const,
+	}
 	expect(applyExecute(s, 1000, 1)).toBe(s)
 })
 

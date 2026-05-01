@@ -1,22 +1,22 @@
-import { VStack, HStack, Rectangle } from 'await'
+import { HStack, Rectangle, VStack } from 'await'
+import { LED_FG } from './config'
 import {
-	eggAnim,
-	petIdleAnim,
-	petHungryAnim,
-	petEatingAnim,
-	petHappyAnim,
-	petShakeAnim,
-	poopSprite,
-	feedIcon,
 	cleanIcon,
-	statsIcon,
-	filledHeart,
-	hollowHeart,
-	faceSmile,
+	eggAnim,
 	faceGrim,
 	faceSad,
+	faceSmile,
+	feedIcon,
+	filledHeart,
+	hollowHeart,
+	petEatingAnim,
+	petHappyAnim,
+	petHungryAnim,
+	petIdleAnim,
+	petShakeAnim,
+	poopSprite,
+	statsIcon,
 } from './sprites'
-import { LED_FG } from './config'
 
 const CELL_SIZE = 8
 const ASSET_HASH_KEY = 'fuka.assets.hash'

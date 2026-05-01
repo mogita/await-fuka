@@ -1,12 +1,8 @@
-import { VStack, HStack, ZStack, Image, Text } from 'await'
-import { GameState } from '../state'
-import {
-	HEART_FILLED_URL,
-	HEART_HOLLOW_URL,
-	happinessFaceUrl,
-} from '../assets'
-import { HUNGER_MAX, LED_BG, LED_FG, worldSpeed } from '../config'
+import { HStack, Image, Text, VStack, ZStack } from 'await'
 import { formatAge } from '../age'
+import { HEART_FILLED_URL, HEART_HOLLOW_URL, happinessFaceUrl } from '../assets'
+import { HUNGER_MAX, LED_BG, LED_FG, worldSpeed } from '../config'
+import { GameState } from '../state'
 
 const STATS_HEART_SIZE_PCT = 0.09
 const STATS_HEART_GAP_PCT = 0.025

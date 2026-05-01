@@ -83,10 +83,7 @@ export function isValidStateV2(value: unknown): value is GameState {
 	if (typeof v.weight !== 'number') return false
 	if (v.weight < 0 || v.weight > 1000) return false
 	if (typeof v.weightLastCheckAt !== 'number') return false
-	if (
-		v.hungerZeroSince !== undefined &&
-		typeof v.hungerZeroSince !== 'number'
-	)
+	if (v.hungerZeroSince !== undefined && typeof v.hungerZeroSince !== 'number')
 		return false
 	if (v.action !== undefined) {
 		if (typeof v.action !== 'object' || v.action === null) return false

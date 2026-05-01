@@ -1,4 +1,4 @@
-import { test, expect } from 'bun:test'
+import { expect, test } from 'bun:test'
 import { layoutFor } from './layout'
 
 // VERTICAL_STRIP_MIN = 40, HORIZONTAL_STRIP_MIN = 110.

@@ -1,7 +1,7 @@
-import { HStack, ZStack, Image } from 'await'
-import { GameState } from '../state'
-import { feedIconUrl, cleanIconUrl, statsIconUrl } from '../assets'
+import { HStack, Image, ZStack } from 'await'
+import { cleanIconUrl, feedIconUrl, statsIconUrl } from '../assets'
 import { LED_BG } from '../config'
+import { GameState } from '../state'
 
 const ICON_W_PCT = 0.25
 const ICON_H_PCT = 0.125

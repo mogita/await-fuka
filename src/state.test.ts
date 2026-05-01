@@ -1,11 +1,11 @@
-import { test, expect } from 'bun:test'
+import { expect, test } from 'bun:test'
+import { HATCH_DURATION_MS, worldSpeed } from './config'
 import {
 	freshState,
 	isValidStateV1,
 	isValidStateV2,
 	migrateV1ToV2,
 } from './state'
-import { HATCH_DURATION_MS, worldSpeed } from './config'
 
 test('freshState returns egg with hunger 5', () => {
 	const s = freshState(1000)
