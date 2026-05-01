@@ -176,7 +176,7 @@ jobs:
           TAG: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          git push origin "release/${TAG}"
+          git push --force origin "release/${TAG}"
 
       - name: Open release PR
         id: pr
