@@ -3,11 +3,6 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: Branch to release from
-        required: true
-        default: main
-        type: string
       version_type:
         description: Version bump (ignored when re-releasing)
         required: true
@@ -38,7 +33,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
           fetch-depth: 0
 
       - name: Setup Bun
@@ -123,7 +117,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
           fetch-depth: 0
 
       - name: Setup Bun
@@ -190,7 +183,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.version.outputs.version }}
-          BRANCH: ${{ inputs.branch }}
+          BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           url=$(gh pr create \
