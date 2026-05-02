@@ -76,8 +76,51 @@ export const rolyPolyBody: BodyAnimSet = {
 	hungry: { frames: [rolyPolyHungry0, rolyPolyHungry1], intervalMs: 800 },
 }
 
-// Placeholder exports for the other 3 archetypes. Filled in by Tasks 9-11.
-// Kept as undefined initially so adultBodyUrl helpers can stub during dev.
-export const lankyBlobBody: BodyAnimSet | undefined = undefined
+// lanky-blob: tall, slim figure with a rounded silhouette. Face area (rows
+// 7-13, cols 6-17) is fully transparent; the outline is pushed out to cols
+// 5 and 18 in those rows so the face overlay stays clean. All 8 frames alias
+// the same bitmap for v1; per-state body distortion is a future iteration.
+const lankyBlobIdle0: readonly number[][] = [
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+]
+const lankyBlobIdle1: readonly number[][] = lankyBlobIdle0
+const lankyBlobEating0: readonly number[][] = lankyBlobIdle0
+const lankyBlobEating1: readonly number[][] = lankyBlobIdle0
+const lankyBlobCleaning0: readonly number[][] = lankyBlobIdle0
+const lankyBlobCleaning1: readonly number[][] = lankyBlobIdle0
+const lankyBlobHungry0: readonly number[][] = lankyBlobIdle0
+const lankyBlobHungry1: readonly number[][] = lankyBlobIdle0
+
+export const lankyBlobBody: BodyAnimSet = {
+	idle: { frames: [lankyBlobIdle0, lankyBlobIdle1], intervalMs: 1000 },
+	eating: { frames: [lankyBlobEating0, lankyBlobEating1], intervalMs: 200 },
+	cleaning: { frames: [lankyBlobCleaning0, lankyBlobCleaning1], intervalMs: 400 },
+	hungry: { frames: [lankyBlobHungry0, lankyBlobHungry1], intervalMs: 800 },
+}
+
+// Placeholder exports for the other 2 archetypes. Filled in by Tasks 10-11.
 export const leanSpikeBody: BodyAnimSet | undefined = undefined
 export const stoutRockBody: BodyAnimSet | undefined = undefined
