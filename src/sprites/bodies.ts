@@ -121,6 +121,50 @@ export const lankyBlobBody: BodyAnimSet = {
 	hungry: { frames: [lankyBlobHungry0, lankyBlobHungry1], intervalMs: 800 },
 }
 
-// Placeholder exports for the other 2 archetypes. Filled in by Tasks 10-11.
-export const leanSpikeBody: BodyAnimSet | undefined = undefined
+// lean-spike: tall, angular silhouette with two sharp spike tips at the top
+// and a narrow pointed base. Face area (rows 7-13, cols 6-17) is fully
+// transparent; the outline at cols 4 and 19 in those rows sits well outside
+// the face zone. All 8 frames alias the same bitmap for v1.
+const leanSpikeIdle0: readonly number[][] = [
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+]
+const leanSpikeIdle1: readonly number[][] = leanSpikeIdle0
+const leanSpikeEating0: readonly number[][] = leanSpikeIdle0
+const leanSpikeEating1: readonly number[][] = leanSpikeIdle0
+const leanSpikeCleaning0: readonly number[][] = leanSpikeIdle0
+const leanSpikeCleaning1: readonly number[][] = leanSpikeIdle0
+const leanSpikeHungry0: readonly number[][] = leanSpikeIdle0
+const leanSpikeHungry1: readonly number[][] = leanSpikeIdle0
+
+export const leanSpikeBody: BodyAnimSet = {
+	idle: { frames: [leanSpikeIdle0, leanSpikeIdle1], intervalMs: 1000 },
+	eating: { frames: [leanSpikeEating0, leanSpikeEating1], intervalMs: 200 },
+	cleaning: { frames: [leanSpikeCleaning0, leanSpikeCleaning1], intervalMs: 400 },
+	hungry: { frames: [leanSpikeHungry0, leanSpikeHungry1], intervalMs: 800 },
+}
+
+// Placeholder export for the last archetype. Filled in by Task 11.
 export const stoutRockBody: BodyAnimSet | undefined = undefined
