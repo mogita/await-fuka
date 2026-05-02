@@ -30,8 +30,22 @@ export const MAX_WEIGHT_LOSS_PER_HR = 1 / 24 // daily cap of 1kg
 
 // Happiness.
 export const FRESH_HAPPINESS = 100
+export const HAPPINESS_DECAY_PER_HR = 1
+export const HAPPINESS_FEED_BONUS = 10
+export const HAPPINESS_CLEAN_BONUS = 15
 // 0..sad: sad face. sad+1..grim: grim face. grim+1..100: smile.
 export const HAPPY_THRESHOLDS = { sad: 33, grim: 66 }
+
+// Evolution.
+export const ADULT_DURATION_MS = 4 * 24 * 60 * 60 * 1000 // 4 days
+export const ADULT_HALO_HAPPINESS_MIN = 90
+export const ADULT_HORNS_HUNGER_ZERO_MIN_MS = 24 * 60 * 60 * 1000
+export const ADULT_CROWN_WEIGHT_MIN = 40
+export const ADULT_CROWN_HAPPINESS_MIN = 80
+export const ADULT_PLANT_POOP_MIN_MS = 24 * 60 * 60 * 1000
+export const ADULT_FEATHERED_HAPPINESS_MIN = 70
+export const ADULT_BAT_HAPPINESS_MAX = 40
+export const ADULT_INSECT_FEED_MIN = 50
 
 export const STORE_KEY = 'fuka.state.v1'
 
