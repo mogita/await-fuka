@@ -1,10 +1,10 @@
-import { test, expect } from 'bun:test'
+import { expect, test } from 'bun:test'
 import {
+	applyAdulthoodSnapshot,
+	backFromCare,
 	bodyFromSeed,
 	faceFromSeed,
 	headFromCare,
-	backFromCare,
-	applyAdulthoodSnapshot,
 } from './evolution'
 import { freshState } from './state'
 
@@ -29,31 +29,93 @@ test('faceFromSeed: deterministic and covers all 6 personalities', () => {
 })
 
 test('headFromCare: halo when no hunger zero and avg happiness >= 90', () => {
-	expect(headFromCare({ avgHappiness: 95, cumulativeHungerZeroMs: 0, cumulativeUncleanedPoopMs: 0, weight: 10 }, 1)).toBe('halo')
+	expect(
+		headFromCare(
+			{
+				avgHappiness: 95,
+				cumulativeHungerZeroMs: 0,
+				cumulativeUncleanedPoopMs: 0,
+				weight: 10,
+			},
+			1,
+		),
+	).toBe('halo')
 })
 
 test('headFromCare: horns when cumulative hunger zero >= 24h', () => {
-	expect(headFromCare({ avgHappiness: 50, cumulativeHungerZeroMs: 24 * 60 * 60 * 1000, cumulativeUncleanedPoopMs: 0, weight: 10 }, 1)).toBe('horns')
+	expect(
+		headFromCare(
+			{
+				avgHappiness: 50,
+				cumulativeHungerZeroMs: 24 * 60 * 60 * 1000,
+				cumulativeUncleanedPoopMs: 0,
+				weight: 10,
+			},
+			1,
+		),
+	).toBe('horns')
 })
 
 test('headFromCare: crown when weight >= 40 and avg happiness >= 80', () => {
-	expect(headFromCare({ avgHappiness: 85, cumulativeHungerZeroMs: 1000, cumulativeUncleanedPoopMs: 0, weight: 45 }, 1)).toBe('crown')
+	expect(
+		headFromCare(
+			{
+				avgHappiness: 85,
+				cumulativeHungerZeroMs: 1000,
+				cumulativeUncleanedPoopMs: 0,
+				weight: 45,
+			},
+			1,
+		),
+	).toBe('crown')
 })
 
 test('headFromCare: plant when uncleaned poop >= 24h', () => {
-	expect(headFromCare({ avgHappiness: 50, cumulativeHungerZeroMs: 1000, cumulativeUncleanedPoopMs: 24 * 60 * 60 * 1000, weight: 10 }, 1)).toBe('plant')
+	expect(
+		headFromCare(
+			{
+				avgHappiness: 50,
+				cumulativeHungerZeroMs: 1000,
+				cumulativeUncleanedPoopMs: 24 * 60 * 60 * 1000,
+				weight: 10,
+			},
+			1,
+		),
+	).toBe('plant')
 })
 
 test('headFromCare: bare otherwise', () => {
-	expect(headFromCare({ avgHappiness: 50, cumulativeHungerZeroMs: 1000, cumulativeUncleanedPoopMs: 0, weight: 10 }, 1)).toBe('bare')
+	expect(
+		headFromCare(
+			{
+				avgHappiness: 50,
+				cumulativeHungerZeroMs: 1000,
+				cumulativeUncleanedPoopMs: 0,
+				weight: 10,
+			},
+			1,
+		),
+	).toBe('bare')
 })
 
 test('headFromCare: priority order (halo wins over crown when both qualify)', () => {
-	expect(headFromCare({ avgHappiness: 95, cumulativeHungerZeroMs: 0, cumulativeUncleanedPoopMs: 0, weight: 45 }, 1)).toBe('halo')
+	expect(
+		headFromCare(
+			{
+				avgHappiness: 95,
+				cumulativeHungerZeroMs: 0,
+				cumulativeUncleanedPoopMs: 0,
+				weight: 45,
+			},
+			1,
+		),
+	).toBe('halo')
 })
 
 test('backFromCare: feathered when avg happiness >= 70', () => {
-	expect(backFromCare({ avgHappiness: 75, totalFeedCount: 10 })).toBe('feathered')
+	expect(backFromCare({ avgHappiness: 75, totalFeedCount: 10 })).toBe(
+		'feathered',
+	)
 })
 
 test('backFromCare: bat when avg happiness < 40', () => {

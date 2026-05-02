@@ -1,8 +1,5 @@
 import { expect, test } from 'bun:test'
-import {
-	HAPPINESS_CLEAN_BONUS,
-	HAPPINESS_FEED_BONUS,
-} from './config'
+import { HAPPINESS_CLEAN_BONUS, HAPPINESS_FEED_BONUS } from './config'
 import { applyCancel, applyCycle, applyExecute } from './intents'
 import { freshState, GameState } from './state'
 

@@ -117,7 +117,10 @@ const lankyBlobHungry1: readonly number[][] = lankyBlobIdle0
 export const lankyBlobBody: BodyAnimSet = {
 	idle: { frames: [lankyBlobIdle0, lankyBlobIdle1], intervalMs: 1000 },
 	eating: { frames: [lankyBlobEating0, lankyBlobEating1], intervalMs: 200 },
-	cleaning: { frames: [lankyBlobCleaning0, lankyBlobCleaning1], intervalMs: 400 },
+	cleaning: {
+		frames: [lankyBlobCleaning0, lankyBlobCleaning1],
+		intervalMs: 400,
+	},
 	hungry: { frames: [lankyBlobHungry0, lankyBlobHungry1], intervalMs: 800 },
 }
 
@@ -162,7 +165,10 @@ const leanSpikeHungry1: readonly number[][] = leanSpikeIdle0
 export const leanSpikeBody: BodyAnimSet = {
 	idle: { frames: [leanSpikeIdle0, leanSpikeIdle1], intervalMs: 1000 },
 	eating: { frames: [leanSpikeEating0, leanSpikeEating1], intervalMs: 200 },
-	cleaning: { frames: [leanSpikeCleaning0, leanSpikeCleaning1], intervalMs: 400 },
+	cleaning: {
+		frames: [leanSpikeCleaning0, leanSpikeCleaning1],
+		intervalMs: 400,
+	},
 	hungry: { frames: [leanSpikeHungry0, leanSpikeHungry1], intervalMs: 800 },
 }
 
@@ -208,6 +214,9 @@ const stoutRockHungry1: readonly number[][] = stoutRockIdle0
 export const stoutRockBody: BodyAnimSet = {
 	idle: { frames: [stoutRockIdle0, stoutRockIdle1], intervalMs: 1000 },
 	eating: { frames: [stoutRockEating0, stoutRockEating1], intervalMs: 200 },
-	cleaning: { frames: [stoutRockCleaning0, stoutRockCleaning1], intervalMs: 400 },
+	cleaning: {
+		frames: [stoutRockCleaning0, stoutRockCleaning1],
+		intervalMs: 400,
+	},
 	hungry: { frames: [stoutRockHungry0, stoutRockHungry1], intervalMs: 800 },
 }

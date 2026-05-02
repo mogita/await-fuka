@@ -1,5 +1,3 @@
-import { GameState } from './state'
-import { applyAdulthoodSnapshot } from './evolution'
 import {
 	ADULT_DURATION_MS,
 	ADULT_WEIGHT,
@@ -10,6 +8,8 @@ import {
 	POOP_INTERVAL_MS,
 	WEIGHT_FLOOR,
 } from './config'
+import { applyAdulthoodSnapshot } from './evolution'
+import { GameState } from './state'
 
 export function tick(
 	state: GameState,

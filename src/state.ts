@@ -154,10 +154,7 @@ export function isValidStateV3(value: unknown): value is GameState {
 	if (typeof v.weight !== 'number') return false
 	if (v.weight < 0 || v.weight > 1000) return false
 	if (typeof v.weightLastCheckAt !== 'number') return false
-	if (
-		v.hungerZeroSince !== undefined &&
-		typeof v.hungerZeroSince !== 'number'
-	)
+	if (v.hungerZeroSince !== undefined && typeof v.hungerZeroSince !== 'number')
 		return false
 	if (typeof v.bornSeed !== 'number') return false
 	if (typeof v.lastHappinessCheckAt !== 'number') return false
@@ -239,10 +236,7 @@ export function isValidStateV2(value: unknown): value is GameStateV2 {
 	if (typeof v.weight !== 'number') return false
 	if (v.weight < 0 || v.weight > 1000) return false
 	if (typeof v.weightLastCheckAt !== 'number') return false
-	if (
-		v.hungerZeroSince !== undefined &&
-		typeof v.hungerZeroSince !== 'number'
-	)
+	if (v.hungerZeroSince !== undefined && typeof v.hungerZeroSince !== 'number')
 		return false
 	if ('bornSeed' in v) return false // v3 marker
 	if (v.action !== undefined) {

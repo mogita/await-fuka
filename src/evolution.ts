@@ -1,11 +1,4 @@
 import {
-	BodyArchetype,
-	BackAttachment,
-	FacePersonality,
-	GameState,
-	HeadAttachment,
-} from './state'
-import {
 	ADULT_BAT_HAPPINESS_MAX,
 	ADULT_CROWN_HAPPINESS_MIN,
 	ADULT_CROWN_WEIGHT_MIN,
@@ -15,6 +8,13 @@ import {
 	ADULT_INSECT_FEED_MIN,
 	ADULT_PLANT_POOP_MIN_MS,
 } from './config'
+import {
+	BackAttachment,
+	BodyArchetype,
+	FacePersonality,
+	GameState,
+	HeadAttachment,
+} from './state'
 
 const BODIES: readonly BodyArchetype[] = [
 	'roly-poly',
@@ -65,9 +65,7 @@ export function headFromCare(
 		care.avgHappiness >= ADULT_CROWN_HAPPINESS_MIN
 	)
 		return 'crown'
-	if (
-		care.cumulativeUncleanedPoopMs >= ADULT_PLANT_POOP_MIN_MS / worldSpeed
-	)
+	if (care.cumulativeUncleanedPoopMs >= ADULT_PLANT_POOP_MIN_MS / worldSpeed)
 		return 'plant'
 	return 'bare'
 }

@@ -1,5 +1,6 @@
 import { HStack, Rectangle, VStack } from 'await'
 import { LED_FG } from './config'
+import type { AnimatedSprite } from './sprites'
 import {
 	cleanIcon,
 	eggAnim,
@@ -17,30 +18,29 @@ import {
 	poopSprite,
 	statsIcon,
 } from './sprites'
-import {
-	rolyPolyBody,
-	lankyBlobBody,
-	leanSpikeBody,
-	stoutRockBody,
-} from './sprites/bodies'
+import { batBack, featheredBack, insectBack } from './sprites/backs'
 import type { BodyAnimSet } from './sprites/bodies'
 import {
-	faceCheerfulResting,
+	lankyBlobBody,
+	leanSpikeBody,
+	rolyPolyBody,
+	stoutRockBody,
+} from './sprites/bodies'
+import {
 	faceCheerfulActive,
-	faceSleepyResting,
-	faceSleepyActive,
-	faceSlyResting,
-	faceSlyActive,
-	faceInnocentResting,
-	faceInnocentActive,
-	faceGrumpyResting,
+	faceCheerfulResting,
 	faceGrumpyActive,
-	faceWiseResting,
+	faceGrumpyResting,
+	faceInnocentActive,
+	faceInnocentResting,
+	faceSleepyActive,
+	faceSleepyResting,
+	faceSlyActive,
+	faceSlyResting,
 	faceWiseActive,
+	faceWiseResting,
 } from './sprites/faces'
-import { halo, horns, crown, plant } from './sprites/heads'
-import { featheredBack, batBack, insectBack } from './sprites/backs'
-import type { AnimatedSprite } from './sprites'
+import { crown, halo, horns, plant } from './sprites/heads'
 
 const CELL_SIZE = 8
 const ASSET_HASH_KEY = 'fuka.assets.hash'
@@ -211,10 +211,9 @@ export function preRender(): void {
 
 	// v3 evolution sprites: adult body archetypes.
 	const renderBody = (archetype: string, body: BodyAnimSet) => {
-		const states: Array<[
-			'idle' | 'eating' | 'cleaning' | 'hungry',
-			AnimatedSprite,
-		]> = [
+		const states: Array<
+			['idle' | 'eating' | 'cleaning' | 'hungry', AnimatedSprite]
+		> = [
 			['idle', body.idle],
 			['eating', body.eating],
 			['cleaning', body.cleaning],

@@ -1,4 +1,5 @@
-import { test, expect } from 'bun:test'
+import { expect, test } from 'bun:test'
+import { HATCH_DURATION_MS, worldSpeed } from './config'
 import {
 	freshState,
 	isValidStateV1,
@@ -7,7 +8,6 @@ import {
 	migrateV1ToV2,
 	migrateV2ToV3,
 } from './state'
-import { HATCH_DURATION_MS, worldSpeed } from './config'
 
 const fixedSeed = () => 0.5
 
