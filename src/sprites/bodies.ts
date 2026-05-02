@@ -168,7 +168,7 @@ export const leanSpikeBody: BodyAnimSet = {
 
 // stout-rock: short, wide, blocky. Sprite top sits at row 4 (rows 0-3 blank)
 // to give the silhouette a stocky, low-to-the-ground feel. 45-degree corners
-// at top and bottom, vertical sides at cols 1 and 22 — well outside the face
+// at top and bottom, vertical sides at cols 1 and 22, well outside the face
 // area (rows 7-13, cols 6-17), which stays fully transparent. All 8 frames
 // alias the same bitmap for v1.
 const stoutRockIdle0: readonly number[][] = [
