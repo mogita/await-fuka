@@ -1,5 +1,5 @@
 import { HStack, Rectangle, VStack } from 'await'
-import { LED_FG } from './config'
+import { LED_BG, LED_FG } from './config'
 import type { AnimatedSprite } from './sprites'
 import {
 	cleanIcon,
@@ -69,6 +69,71 @@ function renderBitmap(
 	)
 }
 
+// Renders an opaque LED_BG fill cell wherever the sprite has a 1; transparent
+// elsewhere. Used to paint a body-shaped occluder layer above wings so the
+// hollow body silhouette doesn't reveal wing pixels through its transparent
+// interior.
+function renderBitmapBg(sprite: readonly number[][]): NativeView {
+	return (
+		<VStack spacing={0}>
+			{sprite.map((row) => (
+				<HStack spacing={0}>
+					{row.map((v) => (
+						<Rectangle
+							sides={CELL_SIZE}
+							fill={v > 0 ? LED_BG : ''}
+							opacity={v > 0 ? 1 : 0}
+						/>
+					))}
+				</HStack>
+			))}
+		</VStack>
+	)
+}
+
+// Floodfill the canvas exterior starting from cells touching the edge with
+// value 0; cells not reached are inside the silhouette. Returns a bitmap
+// where every cell INSIDE the body shape (silhouette + interior) is 1.
+function bodyMaskFor(silhouette: readonly number[][]): readonly number[][] {
+	const rows = silhouette.length
+	const cols = silhouette[0]!.length
+	const reachable: boolean[][] = Array.from({ length: rows }, () =>
+		new Array(cols).fill(false),
+	)
+	const queue: Array<[number, number]> = []
+	const seed = (r: number, c: number) => {
+		if (silhouette[r]![c] === 0 && !reachable[r]![c]) {
+			reachable[r]![c] = true
+			queue.push([r, c])
+		}
+	}
+	for (let r = 0; r < rows; r++) {
+		seed(r, 0)
+		seed(r, cols - 1)
+	}
+	for (let c = 0; c < cols; c++) {
+		seed(0, c)
+		seed(rows - 1, c)
+	}
+	while (queue.length > 0) {
+		const [r, c] = queue.shift()!
+		const neighbors: Array<[number, number]> = [
+			[r - 1, c],
+			[r + 1, c],
+			[r, c - 1],
+			[r, c + 1],
+		]
+		for (const [nr, nc] of neighbors) {
+			if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue
+			if (reachable[nr]![nc]) continue
+			if (silhouette[nr]![nc] !== 0) continue
+			reachable[nr]![nc] = true
+			queue.push([nr, nc])
+		}
+	}
+	return reachable.map((row) => row.map((v) => (v ? 0 : 1)))
+}
+
 // FNV-1a 32-bit hash over JSON.stringify of every sprite import. Used to
 // detect bitmap changes between bundle versions so the prerender knows when
 // to regenerate the on-disk PNG cache. Cheap to compute (small integer
@@ -76,6 +141,9 @@ function renderBitmap(
 // than the existing renderBitmap pass.
 function hashSprites(): number {
 	const data = JSON.stringify([
+		// Sentinel: bump when assets/* set changes shape (e.g. new derived
+		// outputs like body masks) so existing devices invalidate their cache.
+		'v2-body-masks',
 		eggAnim.frames,
 		petIdleAnim.frames,
 		petHungryAnim.frames,
@@ -221,9 +289,14 @@ export function preRender(): void {
 		]
 		for (const [stateName, anim] of states) {
 			for (let i = 0; i < anim.frames.length; i++) {
+				const frame = anim.frames[i]!
 				AwaitFile.saveUIRenderImage(
 					`assets/body-${archetype}-${stateName}-${i}.png`,
-					renderBitmap(anim.frames[i]!),
+					renderBitmap(frame),
+				)
+				AwaitFile.saveUIRenderImage(
+					`assets/body-${archetype}-${stateName}-${i}-mask.png`,
+					renderBitmapBg(bodyMaskFor(frame)),
 				)
 			}
 		}

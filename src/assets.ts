@@ -84,6 +84,31 @@ export function adultBodyUrls(
 	]
 }
 
+export function adultBodyMaskUrls(
+	archetype: BodyArchetype,
+	state: AdultBodyState,
+): readonly [string, string] {
+	return [
+		`assets/body-${archetype}-${state}-0-mask.png`,
+		`assets/body-${archetype}-${state}-1-mask.png`,
+	]
+}
+
+// Vertical offset (in 24-cell rows) of each archetype's head TOP within its
+// bitmap. Head attachments (halo, horns, crown, plant) are authored with
+// their attach line at row 0, so non-zero offsets shift the attachment down
+// to meet the actual head dome of that archetype.
+const ADULT_HEAD_TOP_ROW: Record<BodyArchetype, number> = {
+	'roly-poly': 0,
+	'lanky-blob': 0,
+	'lean-spike': 0,
+	'stout-rock': 4,
+}
+
+export function adultHeadOffsetRows(archetype: BodyArchetype): number {
+	return ADULT_HEAD_TOP_ROW[archetype]
+}
+
 export function adultFaceUrl(
 	personality: FacePersonality,
 	expression: AdultFaceExpression,

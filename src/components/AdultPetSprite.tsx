@@ -3,8 +3,10 @@ import {
 	AdultBodyState,
 	AdultFaceExpression,
 	adultBackUrls,
+	adultBodyMaskUrls,
 	adultBodyUrls,
 	adultFaceUrl,
+	adultHeadOffsetRows,
 	adultHeadUrl,
 } from '../assets'
 import { GameState } from '../state'
@@ -46,9 +48,11 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const shaking = petAdultIsShaking(state)
 
 	const bodyUrls = adultBodyUrls(state.adultBody, bodyState)
+	const bodyMaskUrls = adultBodyMaskUrls(state.adultBody, bodyState)
 	const faceUrl = adultFaceUrl(state.adultFace, faceExpression)
 	const headUrl = adultHeadUrl(state.adultHead)
 	const backUrls = adultBackUrls(state.adultBack)
+	const headOffsetY = (adultHeadOffsetRows(state.adultBody) / 24) * side
 
 	const baseDate = new Date()
 	baseDate.setSeconds(0, 0)
@@ -70,6 +74,17 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 			layers.push(
 				<Image
 					url={backUrls[frameIndex]}
+					resizable
+					interpolation='none'
+					frame={{ width: side, height: side }}
+				/>,
+			)
+			// Body-shaped LED_BG mask drawn between wings and body silhouette.
+			// Erases wing pixels that fall inside the hollow body interior, so
+			// the wing only reads as "behind the pet" outside the silhouette.
+			layers.push(
+				<Image
+					url={bodyMaskUrls[frameIndex]}
 					resizable
 					interpolation='none'
 					frame={{ width: side, height: side }}
@@ -103,6 +118,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 					resizable
 					interpolation='none'
 					frame={{ width: side, height: side }}
+					offset={{ x: 0, y: headOffsetY }}
 				/>,
 			)
 		}
