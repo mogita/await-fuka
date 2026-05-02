@@ -1,4 +1,4 @@
-// @panel {type:'slider',min:1,max:100,step:1}
+// @panel {type:'menu',items:[1,100,1000,10000]}
 export const worldSpeed = 1
 
 // All intervals in milliseconds at worldSpeed=1.
