@@ -17,6 +17,30 @@ import {
 	poopSprite,
 	statsIcon,
 } from './sprites'
+import {
+	rolyPolyBody,
+	lankyBlobBody,
+	leanSpikeBody,
+	stoutRockBody,
+} from './sprites/bodies'
+import type { BodyAnimSet } from './sprites/bodies'
+import {
+	faceCheerfulResting,
+	faceCheerfulActive,
+	faceSleepyResting,
+	faceSleepyActive,
+	faceSlyResting,
+	faceSlyActive,
+	faceInnocentResting,
+	faceInnocentActive,
+	faceGrumpyResting,
+	faceGrumpyActive,
+	faceWiseResting,
+	faceWiseActive,
+} from './sprites/faces'
+import { halo, horns, crown, plant } from './sprites/heads'
+import { featheredBack, batBack, insectBack } from './sprites/backs'
+import type { AnimatedSprite } from './sprites'
 
 const CELL_SIZE = 8
 const ASSET_HASH_KEY = 'fuka.assets.hash'
@@ -67,6 +91,42 @@ function hashSprites(): number {
 		faceSmile,
 		faceGrim,
 		faceSad,
+		// v3 evolution sprites
+		rolyPolyBody.idle.frames,
+		rolyPolyBody.eating.frames,
+		rolyPolyBody.cleaning.frames,
+		rolyPolyBody.hungry.frames,
+		lankyBlobBody.idle.frames,
+		lankyBlobBody.eating.frames,
+		lankyBlobBody.cleaning.frames,
+		lankyBlobBody.hungry.frames,
+		leanSpikeBody.idle.frames,
+		leanSpikeBody.eating.frames,
+		leanSpikeBody.cleaning.frames,
+		leanSpikeBody.hungry.frames,
+		stoutRockBody.idle.frames,
+		stoutRockBody.eating.frames,
+		stoutRockBody.cleaning.frames,
+		stoutRockBody.hungry.frames,
+		faceCheerfulResting,
+		faceCheerfulActive,
+		faceSleepyResting,
+		faceSleepyActive,
+		faceSlyResting,
+		faceSlyActive,
+		faceInnocentResting,
+		faceInnocentActive,
+		faceGrumpyResting,
+		faceGrumpyActive,
+		faceWiseResting,
+		faceWiseActive,
+		halo,
+		horns,
+		crown,
+		plant,
+		featheredBack.frames,
+		batBack.frames,
+		insectBack.frames,
 	])
 	let h = 0x811c9dc5
 	for (let i = 0; i < data.length; i++) {
@@ -148,6 +208,71 @@ export function preRender(): void {
 	AwaitFile.saveUIRenderImage('assets/face-smile.png', renderBitmap(faceSmile))
 	AwaitFile.saveUIRenderImage('assets/face-grim.png', renderBitmap(faceGrim))
 	AwaitFile.saveUIRenderImage('assets/face-sad.png', renderBitmap(faceSad))
+
+	// v3 evolution sprites: adult body archetypes.
+	const renderBody = (archetype: string, body: BodyAnimSet) => {
+		const states: Array<[
+			'idle' | 'eating' | 'cleaning' | 'hungry',
+			AnimatedSprite,
+		]> = [
+			['idle', body.idle],
+			['eating', body.eating],
+			['cleaning', body.cleaning],
+			['hungry', body.hungry],
+		]
+		for (const [stateName, anim] of states) {
+			for (let i = 0; i < anim.frames.length; i++) {
+				AwaitFile.saveUIRenderImage(
+					`assets/body-${archetype}-${stateName}-${i}.png`,
+					renderBitmap(anim.frames[i]!),
+				)
+			}
+		}
+	}
+	renderBody('roly-poly', rolyPolyBody)
+	renderBody('lanky-blob', lankyBlobBody)
+	renderBody('lean-spike', leanSpikeBody)
+	renderBody('stout-rock', stoutRockBody)
+
+	// Face overlays.
+	const faces: Array<[string, readonly number[][]]> = [
+		['cheerful-resting', faceCheerfulResting],
+		['cheerful-active', faceCheerfulActive],
+		['sleepy-resting', faceSleepyResting],
+		['sleepy-active', faceSleepyActive],
+		['sly-resting', faceSlyResting],
+		['sly-active', faceSlyActive],
+		['innocent-resting', faceInnocentResting],
+		['innocent-active', faceInnocentActive],
+		['grumpy-resting', faceGrumpyResting],
+		['grumpy-active', faceGrumpyActive],
+		['wise-resting', faceWiseResting],
+		['wise-active', faceWiseActive],
+	]
+	for (const [name, sprite] of faces) {
+		AwaitFile.saveUIRenderImage(`assets/face-${name}.png`, renderBitmap(sprite))
+	}
+
+	// Head attachments.
+	AwaitFile.saveUIRenderImage('assets/head-halo.png', renderBitmap(halo))
+	AwaitFile.saveUIRenderImage('assets/head-horns.png', renderBitmap(horns))
+	AwaitFile.saveUIRenderImage('assets/head-crown.png', renderBitmap(crown))
+	AwaitFile.saveUIRenderImage('assets/head-plant.png', renderBitmap(plant))
+
+	// Back attachments.
+	const backs: Array<[string, AnimatedSprite]> = [
+		['feathered', featheredBack],
+		['bat', batBack],
+		['insect', insectBack],
+	]
+	for (const [name, anim] of backs) {
+		for (let i = 0; i < anim.frames.length; i++) {
+			AwaitFile.saveUIRenderImage(
+				`assets/back-${name}-${i}.png`,
+				renderBitmap(anim.frames[i]!),
+			)
+		}
+	}
 
 	AwaitFile.saveUIRenderImage('assets/poop.png', renderBitmap(poopSprite))
 	AwaitFile.saveUIRenderImage(
