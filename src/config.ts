@@ -39,7 +39,6 @@ export const HAPPY_THRESHOLDS = { sad: 33, grim: 66 }
 // Evolution.
 export const ADULT_DURATION_MS = 4 * 24 * 60 * 60 * 1000 // 4 days
 export const ADULT_HALO_HAPPINESS_MIN = 90
-export const ADULT_HORNS_HUNGER_ZERO_MIN_MS = 24 * 60 * 60 * 1000
 export const ADULT_CROWN_WEIGHT_MIN = 40
 export const ADULT_CROWN_HAPPINESS_MIN = 80
 export const ADULT_PLANT_POOP_MIN_MS = 24 * 60 * 60 * 1000

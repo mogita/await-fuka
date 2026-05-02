@@ -2,7 +2,6 @@ import {
 	ADULT_CROWN_HAPPINESS_MIN,
 	ADULT_CROWN_WEIGHT_MIN,
 	ADULT_HALO_HAPPINESS_MIN,
-	ADULT_HORNS_HUNGER_ZERO_MIN_MS,
 	ADULT_PLANT_POOP_MIN_MS,
 } from './config'
 import {
@@ -51,11 +50,6 @@ export function headFromCare(
 		care.avgHappiness >= ADULT_HALO_HAPPINESS_MIN
 	)
 		return 'halo'
-	if (
-		care.cumulativeHungerZeroMs >=
-		ADULT_HORNS_HUNGER_ZERO_MIN_MS / worldSpeed
-	)
-		return 'horns'
 	if (
 		care.weight >= ADULT_CROWN_WEIGHT_MIN &&
 		care.avgHappiness >= ADULT_CROWN_HAPPINESS_MIN

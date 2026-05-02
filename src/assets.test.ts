@@ -152,7 +152,6 @@ test('adultFaceUrl: returns face URL for personality + expression', () => {
 
 test('adultHeadUrl: returns URL for non-bare attachments, undefined for bare', () => {
 	expect(adultHeadUrl('halo')).toBe('assets/head-halo.png')
-	expect(adultHeadUrl('horns')).toBe('assets/head-horns.png')
 	expect(adultHeadUrl('crown')).toBe('assets/head-crown.png')
 	expect(adultHeadUrl('plant')).toBe('assets/head-plant.png')
 	expect(adultHeadUrl('bare')).toBeUndefined()

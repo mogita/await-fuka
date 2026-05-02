@@ -41,20 +41,6 @@ test('headFromCare: halo when no hunger zero and avg happiness >= 90', () => {
 	).toBe('halo')
 })
 
-test('headFromCare: horns when cumulative hunger zero >= 24h', () => {
-	expect(
-		headFromCare(
-			{
-				avgHappiness: 50,
-				cumulativeHungerZeroMs: 24 * 60 * 60 * 1000,
-				cumulativeUncleanedPoopMs: 0,
-				weight: 10,
-			},
-			1,
-		),
-	).toBe('horns')
-})
-
 test('headFromCare: crown when weight >= 40 and avg happiness >= 80', () => {
 	expect(
 		headFromCare(

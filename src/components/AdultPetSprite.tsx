@@ -63,14 +63,21 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const faceShakeOffsetA = shaking ? -side * 0.08 : 0
 	const faceShakeOffsetB = shaking ? side * 0.08 : 0
 
+	// Breathing: alternate frames bob the whole pet down by one cell. The fs02
+	// mask flips between frame 0 (rest) and frame 1 (down) at ~1Hz, so the pet
+	// reads as inhaling/exhaling without per-archetype breathing bitmaps.
+	const breathOffset = side / 24
+
 	const layeredFrame = (frameIndex: 0 | 1) => {
 		const layers: NativeView[] = []
+		const breathY = frameIndex === 0 ? 0 : breathOffset
 		layers.push(
 			<Image
 				url={bodyUrls[frameIndex]}
 				resizable
 				interpolation='none'
 				frame={{ width: side, height: side }}
+				offset={{ x: 0, y: breathY }}
 			/>,
 		)
 		layers.push(
@@ -81,7 +88,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 				frame={{ width: side, height: side }}
 				offset={{
 					x: frameIndex === 0 ? faceShakeOffsetA : faceShakeOffsetB,
-					y: 0,
+					y: breathY,
 				}}
 			/>,
 		)
@@ -92,7 +99,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 					resizable
 					interpolation='none'
 					frame={{ width: side, height: side }}
-					offset={{ x: 0, y: headOffsetY }}
+					offset={{ x: 0, y: headOffsetY + breathY }}
 				/>,
 			)
 		}

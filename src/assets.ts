@@ -84,7 +84,7 @@ export function adultBodyUrls(
 }
 
 // Vertical offset (in 24-cell rows) of each archetype's head TOP within its
-// bitmap. Head attachments (halo, horns, crown, plant) are authored with
+// bitmap. Head attachments (halo, crown, plant) are authored with
 // their attach line at row 0, so non-zero offsets shift the attachment down
 // to meet the actual head dome of that archetype.
 const ADULT_HEAD_TOP_ROW: Record<BodyArchetype, number> = {

@@ -17,7 +17,7 @@ export type FacePersonality =
 	| 'innocent'
 	| 'grumpy'
 	| 'wise'
-export type HeadAttachment = 'halo' | 'horns' | 'crown' | 'plant' | 'bare'
+export type HeadAttachment = 'halo' | 'crown' | 'plant' | 'bare'
 
 export type RandomSource = () => number
 
@@ -181,7 +181,6 @@ export function isValidStateV3(value: unknown): value is GameState {
 	if (
 		v.adultHead !== undefined &&
 		v.adultHead !== 'halo' &&
-		v.adultHead !== 'horns' &&
 		v.adultHead !== 'crown' &&
 		v.adultHead !== 'plant' &&
 		v.adultHead !== 'bare'

@@ -39,7 +39,7 @@ import {
 	faceWiseActive,
 	faceWiseResting,
 } from './sprites/faces'
-import { crown, halo, horns, plant } from './sprites/heads'
+import { crown, halo, plant } from './sprites/heads'
 
 const CELL_SIZE = 8
 const ASSET_HASH_KEY = 'fuka.assets.hash'
@@ -77,7 +77,7 @@ function hashSprites(): number {
 	const data = JSON.stringify([
 		// Sentinel: bump when assets/* set changes shape so existing devices
 		// invalidate their cache.
-		'v3-no-backs',
+		'v4-no-horns',
 		eggAnim.frames,
 		petIdleAnim.frames,
 		petHungryAnim.frames,
@@ -123,7 +123,6 @@ function hashSprites(): number {
 		faceWiseResting,
 		faceWiseActive,
 		halo,
-		horns,
 		crown,
 		plant,
 	])
@@ -253,7 +252,6 @@ export function preRender(): void {
 
 	// Head attachments.
 	AwaitFile.saveUIRenderImage('assets/head-halo.png', renderBitmap(halo))
-	AwaitFile.saveUIRenderImage('assets/head-horns.png', renderBitmap(horns))
 	AwaitFile.saveUIRenderImage('assets/head-crown.png', renderBitmap(crown))
 	AwaitFile.saveUIRenderImage('assets/head-plant.png', renderBitmap(plant))
 
