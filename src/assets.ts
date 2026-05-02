@@ -1,5 +1,12 @@
 import { HAPPY_THRESHOLDS } from './config'
-import { GameState, MenuCursor } from './state'
+import {
+	BackAttachment,
+	BodyArchetype,
+	FacePersonality,
+	GameState,
+	HeadAttachment,
+	MenuCursor,
+} from './state'
 
 export type PetAnimSpec = {
 	urls: readonly [string, string]
@@ -63,3 +70,35 @@ export function happinessFaceUrl(value: number): string {
 export const POOP_URL = 'assets/poop.png'
 export const HEART_FILLED_URL = 'assets/heart-filled.png'
 export const HEART_HOLLOW_URL = 'assets/heart-hollow.png'
+
+export type AdultBodyState = 'idle' | 'eating' | 'cleaning' | 'hungry'
+export type AdultFaceExpression = 'resting' | 'active'
+
+export function adultBodyUrls(
+	archetype: BodyArchetype,
+	state: AdultBodyState,
+): readonly [string, string] {
+	return [
+		`assets/body-${archetype}-${state}-0.png`,
+		`assets/body-${archetype}-${state}-1.png`,
+	]
+}
+
+export function adultFaceUrl(
+	personality: FacePersonality,
+	expression: AdultFaceExpression,
+): string {
+	return `assets/face-${personality}-${expression}.png`
+}
+
+export function adultHeadUrl(attachment: HeadAttachment): string | undefined {
+	if (attachment === 'bare') return undefined
+	return `assets/head-${attachment}.png`
+}
+
+export function adultBackUrls(
+	attachment: BackAttachment,
+): readonly [string, string] | undefined {
+	if (attachment === 'bare') return undefined
+	return [`assets/back-${attachment}-0.png`, `assets/back-${attachment}-1.png`]
+}
