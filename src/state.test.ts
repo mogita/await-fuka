@@ -25,7 +25,6 @@ test('freshState v3 returns egg with all evolution fields', () => {
 	expect(s.adultBody).toBeUndefined()
 	expect(s.adultFace).toBeUndefined()
 	expect(s.adultHead).toBeUndefined()
-	expect(s.adultBack).toBeUndefined()
 	expect(s.lastHappinessCheckAt).toBe(1000)
 	expect(s.cumulativeHungerZeroMs).toBe(0)
 	expect(s.cumulativeUncleanedPoopMs).toBe(0)
@@ -45,7 +44,6 @@ test('isValidStateV3 accepts an adult state with all adult fields populated', ()
 		adultBody: 'roly-poly' as const,
 		adultFace: 'cheerful' as const,
 		adultHead: 'halo' as const,
-		adultBack: 'feathered' as const,
 	}
 	expect(isValidStateV3(s)).toBe(true)
 })

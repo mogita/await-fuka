@@ -1,6 +1,5 @@
 import { expect, test } from 'bun:test'
 import {
-	adultBackUrls,
 	adultBodyUrls,
 	adultFaceUrl,
 	adultHeadUrl,
@@ -157,16 +156,4 @@ test('adultHeadUrl: returns URL for non-bare attachments, undefined for bare', (
 	expect(adultHeadUrl('crown')).toBe('assets/head-crown.png')
 	expect(adultHeadUrl('plant')).toBe('assets/head-plant.png')
 	expect(adultHeadUrl('bare')).toBeUndefined()
-})
-
-test('adultBackUrls: returns 2-frame URLs for non-bare wings, undefined for bare', () => {
-	expect(adultBackUrls('feathered')).toEqual([
-		'assets/back-feathered-0.png',
-		'assets/back-feathered-1.png',
-	])
-	expect(adultBackUrls('bat')).toEqual([
-		'assets/back-bat-0.png',
-		'assets/back-bat-1.png',
-	])
-	expect(adultBackUrls('bare')).toBeUndefined()
 })

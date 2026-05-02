@@ -1,7 +1,6 @@
 import { expect, test } from 'bun:test'
 import {
 	applyAdulthoodSnapshot,
-	backFromCare,
 	bodyFromSeed,
 	faceFromSeed,
 	headFromCare,
@@ -112,25 +111,7 @@ test('headFromCare: priority order (halo wins over crown when both qualify)', ()
 	).toBe('halo')
 })
 
-test('backFromCare: feathered when avg happiness >= 70', () => {
-	expect(backFromCare({ avgHappiness: 75, totalFeedCount: 10 })).toBe(
-		'feathered',
-	)
-})
-
-test('backFromCare: bat when avg happiness < 40', () => {
-	expect(backFromCare({ avgHappiness: 30, totalFeedCount: 10 })).toBe('bat')
-})
-
-test('backFromCare: insect when totalFeedCount >= 50', () => {
-	expect(backFromCare({ avgHappiness: 50, totalFeedCount: 60 })).toBe('insect')
-})
-
-test('backFromCare: bare otherwise', () => {
-	expect(backFromCare({ avgHappiness: 50, totalFeedCount: 10 })).toBe('bare')
-})
-
-test('applyAdulthoodSnapshot: sets stage adult and all four adult fields', () => {
+test('applyAdulthoodSnapshot: sets stage adult and three adult fields', () => {
 	const s = {
 		...freshState(0, fixedSeed),
 		stage: 'youth' as const,
@@ -145,7 +126,6 @@ test('applyAdulthoodSnapshot: sets stage adult and all four adult fields', () =>
 	expect(r.adultBody).toBeDefined()
 	expect(r.adultFace).toBeDefined()
 	expect(r.adultHead).toBe('halo')
-	expect(r.adultBack).toBe('feathered')
 })
 
 test('applyAdulthoodSnapshot: avg happiness 0 when no samples', () => {
@@ -157,5 +137,4 @@ test('applyAdulthoodSnapshot: avg happiness 0 when no samples', () => {
 	}
 	const r = applyAdulthoodSnapshot(s, 1000, 1)
 	expect(r.adultHead).toBe('bare')
-	expect(r.adultBack).toBe('bare')
 })

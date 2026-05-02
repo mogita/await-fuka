@@ -2,8 +2,6 @@ import { Image, Time, ZStack } from 'await'
 import {
 	AdultBodyState,
 	AdultFaceExpression,
-	adultBackUrls,
-	adultBodyMaskUrls,
 	adultBodyUrls,
 	adultFaceUrl,
 	adultHeadOffsetRows,
@@ -37,8 +35,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	if (
 		state.adultBody === undefined ||
 		state.adultFace === undefined ||
-		state.adultHead === undefined ||
-		state.adultBack === undefined
+		state.adultHead === undefined
 	) {
 		return undefined
 	}
@@ -48,10 +45,8 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const shaking = petAdultIsShaking(state)
 
 	const bodyUrls = adultBodyUrls(state.adultBody, bodyState)
-	const bodyMaskUrls = adultBodyMaskUrls(state.adultBody, bodyState)
 	const faceUrl = adultFaceUrl(state.adultFace, faceExpression)
 	const headUrl = adultHeadUrl(state.adultHead)
-	const backUrls = adultBackUrls(state.adultBack)
 	const headOffsetY = (adultHeadOffsetRows(state.adultBody) / 24) * side
 
 	const baseDate = new Date()
@@ -70,27 +65,6 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 
 	const layeredFrame = (frameIndex: 0 | 1) => {
 		const layers: NativeView[] = []
-		if (backUrls) {
-			layers.push(
-				<Image
-					url={backUrls[frameIndex]}
-					resizable
-					interpolation='none'
-					frame={{ width: side, height: side }}
-				/>,
-			)
-			// Body-shaped LED_BG mask drawn between wings and body silhouette.
-			// Erases wing pixels that fall inside the hollow body interior, so
-			// the wing only reads as "behind the pet" outside the silhouette.
-			layers.push(
-				<Image
-					url={bodyMaskUrls[frameIndex]}
-					resizable
-					interpolation='none'
-					frame={{ width: side, height: side }}
-				/>,
-			)
-		}
 		layers.push(
 			<Image
 				url={bodyUrls[frameIndex]}

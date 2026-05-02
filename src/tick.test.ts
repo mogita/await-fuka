@@ -377,7 +377,6 @@ test('tick: youth becomes adult at bornAt + ADULT_DURATION_MS / ws', () => {
 	expect(s.adultBody).toBeDefined()
 	expect(s.adultFace).toBeDefined()
 	expect(s.adultHead).toBeDefined()
-	expect(s.adultBack).toBeDefined()
 })
 
 test('tick: youth stays youth before ADULT_DURATION_MS', () => {

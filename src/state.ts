@@ -18,7 +18,6 @@ export type FacePersonality =
 	| 'grumpy'
 	| 'wise'
 export type HeadAttachment = 'halo' | 'horns' | 'crown' | 'plant' | 'bare'
-export type BackAttachment = 'feathered' | 'bat' | 'insect' | 'bare'
 
 export type RandomSource = () => number
 
@@ -47,7 +46,6 @@ export type GameState = {
 	adultBody: BodyArchetype | undefined
 	adultFace: FacePersonality | undefined
 	adultHead: HeadAttachment | undefined
-	adultBack: BackAttachment | undefined
 
 	lastHappinessCheckAt: number
 	cumulativeHungerZeroMs: number
@@ -119,7 +117,6 @@ export function freshState(
 		adultBody: undefined,
 		adultFace: undefined,
 		adultHead: undefined,
-		adultBack: undefined,
 		lastHappinessCheckAt: now,
 		cumulativeHungerZeroMs: 0,
 		cumulativeUncleanedPoopMs: 0,
@@ -188,14 +185,6 @@ export function isValidStateV3(value: unknown): value is GameState {
 		v.adultHead !== 'crown' &&
 		v.adultHead !== 'plant' &&
 		v.adultHead !== 'bare'
-	)
-		return false
-	if (
-		v.adultBack !== undefined &&
-		v.adultBack !== 'feathered' &&
-		v.adultBack !== 'bat' &&
-		v.adultBack !== 'insect' &&
-		v.adultBack !== 'bare'
 	)
 		return false
 	if (v.action !== undefined) {
@@ -300,7 +289,6 @@ export function migrateV2ToV3(
 		adultBody: undefined,
 		adultFace: undefined,
 		adultHead: undefined,
-		adultBack: undefined,
 		lastHappinessCheckAt: now,
 		cumulativeHungerZeroMs: 0,
 		cumulativeUncleanedPoopMs: 0,

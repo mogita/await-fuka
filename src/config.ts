@@ -43,9 +43,6 @@ export const ADULT_HORNS_HUNGER_ZERO_MIN_MS = 24 * 60 * 60 * 1000
 export const ADULT_CROWN_WEIGHT_MIN = 40
 export const ADULT_CROWN_HAPPINESS_MIN = 80
 export const ADULT_PLANT_POOP_MIN_MS = 24 * 60 * 60 * 1000
-export const ADULT_FEATHERED_HAPPINESS_MIN = 70
-export const ADULT_BAT_HAPPINESS_MAX = 40
-export const ADULT_INSECT_FEED_MIN = 50
 
 export const STORE_KEY = 'fuka.state.v1'
 
