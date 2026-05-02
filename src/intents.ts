@@ -1,5 +1,7 @@
 import {
 	ACTION_FEEDBACK_MS,
+	HAPPINESS_CLEAN_BONUS,
+	HAPPINESS_FEED_BONUS,
 	HUNGER_MAX,
 	MASK_CYCLE_MS,
 	REJECTION_FEEDBACK_MS,
@@ -68,6 +70,8 @@ export function applyExecute(
 			screen: 'pet',
 			hunger: state.hunger + 1,
 			weight: newWeight,
+			happiness: Math.min(100, state.happiness + HAPPINESS_FEED_BONUS),
+			totalFeedCount: state.totalFeedCount + 1,
 			action: { kind: 'feed', until: actionUntil },
 		}
 	}
@@ -82,6 +86,7 @@ export function applyExecute(
 			screen: 'pet',
 			hasPoop: false,
 			lastPoopCheckAt: now,
+			happiness: Math.min(100, state.happiness + HAPPINESS_CLEAN_BONUS),
 			action: { kind: 'clean', until: actionUntil },
 		}
 	}

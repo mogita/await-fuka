@@ -1,5 +1,11 @@
 import { HAPPY_THRESHOLDS } from './config'
-import { GameState, MenuCursor } from './state'
+import {
+	BodyArchetype,
+	FacePersonality,
+	GameState,
+	HeadAttachment,
+	MenuCursor,
+} from './state'
 
 export type PetAnimSpec = {
 	urls: readonly [string, string]
@@ -63,3 +69,43 @@ export function happinessFaceUrl(value: number): string {
 export const POOP_URL = 'assets/poop.png'
 export const HEART_FILLED_URL = 'assets/heart-filled.png'
 export const HEART_HOLLOW_URL = 'assets/heart-hollow.png'
+
+export type AdultBodyState = 'idle' | 'eating' | 'cleaning' | 'hungry'
+export type AdultFaceExpression = 'resting' | 'active'
+
+export function adultBodyUrls(
+	archetype: BodyArchetype,
+	state: AdultBodyState,
+): readonly [string, string] {
+	return [
+		`assets/body-${archetype}-${state}-0.png`,
+		`assets/body-${archetype}-${state}-1.png`,
+	]
+}
+
+// Vertical offset (in 24-cell rows) of each archetype's head TOP within its
+// bitmap. Head attachments (halo, crown, plant) are authored with
+// their attach line at row 0, so non-zero offsets shift the attachment down
+// to meet the actual head dome of that archetype.
+const ADULT_HEAD_TOP_ROW: Record<BodyArchetype, number> = {
+	'roly-poly': 0,
+	'lanky-blob': 0,
+	'lean-spike': 0,
+	'stout-rock': 4,
+}
+
+export function adultHeadOffsetRows(archetype: BodyArchetype): number {
+	return ADULT_HEAD_TOP_ROW[archetype]
+}
+
+export function adultFaceUrl(
+	personality: FacePersonality,
+	expression: AdultFaceExpression,
+): string {
+	return `assets/face-${personality}-${expression}.png`
+}
+
+export function adultHeadUrl(attachment: HeadAttachment): string | undefined {
+	if (attachment === 'bare') return undefined
+	return `assets/head-${attachment}.png`
+}

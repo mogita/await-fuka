@@ -7,6 +7,7 @@ import {
 } from '../assets'
 import { HUNGER_MAX, LED_BG, LED_FG } from '../config'
 import { GameState } from '../state'
+import { AdultPetSprite } from './AdultPetSprite'
 
 const PET_SIZE_PCT = 0.5
 const PET_CENTER_Y_PCT = 0.4
@@ -59,7 +60,7 @@ function buildPetAnim(
 type Props = { state: GameState; side: number }
 
 export function PetScreen({ state, side }: Props) {
-	const isPet = state.stage === 'pet'
+	const isPet = state.stage !== 'egg'
 	const petSize = side * PET_SIZE_PCT
 	const petCenterY = side * PET_CENTER_Y_PCT
 	const poopSize = side * POOP_SIZE_PCT
@@ -73,7 +74,16 @@ export function PetScreen({ state, side }: Props) {
 	const heartGap = side * HEART_GAP_PCT
 	const halfSide = side / 2
 
-	const pet = buildPetAnim(state, petSize, petCenterY - halfSide)
+	const pet =
+		state.stage === 'adult' ? (
+			<AdultPetSprite
+				state={state}
+				side={petSize}
+				offsetY={petCenterY - halfSide}
+			/>
+		) : (
+			buildPetAnim(state, petSize, petCenterY - halfSide)
+		)
 	const poop =
 		isPet && state.hasPoop ? (
 			<Image
