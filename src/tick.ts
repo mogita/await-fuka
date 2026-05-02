@@ -1,5 +1,7 @@
 import { GameState } from './state'
+import { applyAdulthoodSnapshot } from './evolution'
 import {
+	ADULT_DURATION_MS,
 	ADULT_WEIGHT,
 	HAPPINESS_DECAY_PER_HR,
 	HATCH_DURATION_MS,
@@ -110,6 +112,15 @@ export function tick(
 			}
 		}
 
+		// Adulthood transition (after hourly metrics so the snapshot includes the
+		// most recent happiness sample).
+		if (s.stage === 'youth') {
+			const adultAt = s.bornAt + ADULT_DURATION_MS / worldSpeed
+			if (now >= adultAt) {
+				s = applyAdulthoodSnapshot(s, now, worldSpeed)
+			}
+		}
+
 		if (!s.hasPoop) {
 			const poopInterval = POOP_INTERVAL_MS / worldSpeed
 			if (now - s.lastPoopCheckAt >= poopInterval) {
@@ -152,6 +163,7 @@ export function nextInterestingMoment(
 			candidates.push(
 				state.lastHappinessCheckAt + HUNGER_INTERVAL_MS / worldSpeed,
 			)
+			candidates.push(state.bornAt + ADULT_DURATION_MS / worldSpeed)
 		}
 	}
 

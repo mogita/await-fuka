@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test'
 import {
+	ADULT_DURATION_MS,
 	HATCH_DURATION_MS,
 	HUNGER_INTERVAL_MS,
 	HAPPINESS_DECAY_PER_HR,
@@ -364,4 +365,38 @@ test('tick: happiness mechanics frozen during egg', () => {
 	expect(t.stage).toBe('egg')
 	expect(t.happiness).toBe(100)
 	expect(t.lifetimeHappinessSamples).toBe(0)
+})
+
+test('tick: youth becomes adult at bornAt + ADULT_DURATION_MS / ws', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	expect(s.stage).toBe('youth')
+	const adultAt = s.bornAt + ADULT_DURATION_MS / 1
+	s = tick(s, adultAt, 1)
+	expect(s.stage).toBe('adult')
+	expect(s.adultBody).toBeDefined()
+	expect(s.adultFace).toBeDefined()
+	expect(s.adultHead).toBeDefined()
+	expect(s.adultBack).toBeDefined()
+})
+
+test('tick: youth stays youth before ADULT_DURATION_MS', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	const almostAdult = s.bornAt + ADULT_DURATION_MS / 1 - 1000
+	s = tick(s, almostAdult, 1)
+	expect(s.stage).toBe('youth')
+	expect(s.adultBody).toBeUndefined()
+})
+
+test('tick: adult freezes happiness sampling', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = tick(s, s.bornAt + ADULT_DURATION_MS / 1, 1)
+	expect(s.stage).toBe('adult')
+	const samples = s.lifetimeHappinessSamples
+	const happiness = s.happiness
+	s = tick(s, s.bornAt + ADULT_DURATION_MS / 1 + HUNGER_INTERVAL_MS * 5, 1)
+	expect(s.lifetimeHappinessSamples).toBe(samples)
+	expect(s.happiness).toBe(happiness)
 })
