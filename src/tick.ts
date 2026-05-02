@@ -1,12 +1,13 @@
+import { GameState } from './state'
 import {
 	ADULT_WEIGHT,
+	HAPPINESS_DECAY_PER_HR,
 	HATCH_DURATION_MS,
 	HUNGER_INTERVAL_MS,
 	MAX_WEIGHT_LOSS_PER_HR,
 	POOP_INTERVAL_MS,
 	WEIGHT_FLOOR,
 } from './config'
-import { GameState } from './state'
 
 export function tick(
 	state: GameState,
@@ -25,11 +26,12 @@ export function tick(
 				lastHungerCheckAt: hatchAt,
 				lastPoopCheckAt: hatchAt,
 				weightLastCheckAt: hatchAt,
+				lastHappinessCheckAt: hatchAt,
 			}
 		}
 	}
 
-	if (s.stage !== 'egg') {
+	if (s.stage === 'youth' || s.stage === 'adult') {
 		const hungerInterval = HUNGER_INTERVAL_MS / worldSpeed
 		const hungerTicks = Math.max(
 			0,
@@ -74,6 +76,40 @@ export function tick(
 			}
 		}
 
+		// Hourly metric pass (youth only; adult freezes happiness/metrics).
+		if (s.stage === 'youth') {
+			const happinessInterval = HUNGER_INTERVAL_MS / worldSpeed
+			const happinessBoundaries = Math.max(
+				0,
+				Math.floor((now - s.lastHappinessCheckAt) / happinessInterval),
+			)
+			if (happinessBoundaries > 0) {
+				let happiness = s.happiness
+				let sum = s.lifetimeHappinessSum
+				let samples = s.lifetimeHappinessSamples
+				let cumHungerZero = s.cumulativeHungerZeroMs
+				let cumPoop = s.cumulativeUncleanedPoopMs
+				const hadPoop = s.hasPoop
+				for (let i = 0; i < happinessBoundaries; i++) {
+					happiness = Math.max(0, happiness - HAPPINESS_DECAY_PER_HR)
+					sum += happiness
+					samples += 1
+					if (s.hunger === 0) cumHungerZero += happinessInterval
+					if (hadPoop) cumPoop += happinessInterval
+				}
+				s = {
+					...s,
+					happiness,
+					lifetimeHappinessSum: sum,
+					lifetimeHappinessSamples: samples,
+					cumulativeHungerZeroMs: cumHungerZero,
+					cumulativeUncleanedPoopMs: cumPoop,
+					lastHappinessCheckAt:
+						s.lastHappinessCheckAt + happinessBoundaries * happinessInterval,
+				}
+			}
+		}
+
 		if (!s.hasPoop) {
 			const poopInterval = POOP_INTERVAL_MS / worldSpeed
 			if (now - s.lastPoopCheckAt >= poopInterval) {
@@ -111,6 +147,11 @@ export function nextInterestingMoment(
 		}
 		if (state.hungerZeroSince !== undefined) {
 			candidates.push(state.weightLastCheckAt + HUNGER_INTERVAL_MS / worldSpeed)
+		}
+		if (state.stage === 'youth') {
+			candidates.push(
+				state.lastHappinessCheckAt + HUNGER_INTERVAL_MS / worldSpeed,
+			)
 		}
 	}
 
