@@ -3,7 +3,7 @@ import { applyCancel, applyCycle, applyExecute } from './intents'
 import { freshState, GameState } from './state'
 
 function pet(overrides: Partial<GameState> = {}): GameState {
-	return { ...freshState(0), stage: 'pet', ...overrides }
+	return { ...freshState(0), stage: 'youth', ...overrides }
 }
 
 // applyCycle

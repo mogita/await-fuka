@@ -9,7 +9,7 @@ import {
 import { freshState, GameState } from './state'
 
 function pet(overrides: Partial<GameState> = {}): GameState {
-	return { ...freshState(0), stage: 'pet', ...overrides }
+	return { ...freshState(0), stage: 'youth', ...overrides }
 }
 
 test('petAnimSpec: egg stage returns 2 egg frames', () => {

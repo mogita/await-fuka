@@ -59,7 +59,7 @@ function buildPetAnim(
 type Props = { state: GameState; side: number }
 
 export function PetScreen({ state, side }: Props) {
-	const isPet = state.stage === 'pet'
+	const isPet = state.stage !== 'egg'
 	const petSize = side * PET_SIZE_PCT
 	const petCenterY = side * PET_CENTER_Y_PCT
 	const poopSize = side * POOP_SIZE_PCT

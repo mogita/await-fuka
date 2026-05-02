@@ -20,7 +20,7 @@ export function tick(
 		if (now >= hatchAt) {
 			s = {
 				...s,
-				stage: 'pet',
+				stage: 'youth',
 				bornAt: hatchAt,
 				lastHungerCheckAt: hatchAt,
 				lastPoopCheckAt: hatchAt,
@@ -29,7 +29,7 @@ export function tick(
 		}
 	}
 
-	if (s.stage === 'pet') {
+	if (s.stage !== 'egg') {
 		const hungerInterval = HUNGER_INTERVAL_MS / worldSpeed
 		const hungerTicks = Math.max(
 			0,

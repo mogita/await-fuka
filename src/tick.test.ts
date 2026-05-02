@@ -18,7 +18,7 @@ test('tick: stays as egg before hatch duration', () => {
 test('tick: hatches at hatch duration', () => {
 	const s = freshState(0)
 	const t = tick(s, HATCH_DURATION_MS, 1)
-	expect(t.stage).toBe('pet')
+	expect(t.stage).toBe('youth')
 	expect(t.lastHungerCheckAt).toBe(HATCH_DURATION_MS)
 	expect(t.lastPoopCheckAt).toBe(HATCH_DURATION_MS)
 })
@@ -26,7 +26,7 @@ test('tick: hatches at hatch duration', () => {
 test('tick: worldSpeed accelerates hatch', () => {
 	const s = freshState(0)
 	const t = tick(s, HATCH_DURATION_MS / 100, 100)
-	expect(t.stage).toBe('pet')
+	expect(t.stage).toBe('youth')
 })
 
 test('tick: pet hunger decays one heart per interval', () => {
