@@ -96,7 +96,9 @@
 			Click or drag to paint. The first cell you press decides paint mode
 			(off → on, or on → off) for the whole drag. Output mirrors the TS
 			literal used in <code>src/sprites/*.ts</code>; paste over it and
-			click Load to edit an existing sprite.
+			click Load to edit an existing sprite. Undo/redo:
+			<kbd>⌘Z</kbd> / <kbd>⌘⇧Z</kbd> on Mac, <kbd>Ctrl+Z</kbd> /
+			<kbd>Ctrl+Y</kbd> on Windows/Linux (up to 30 steps).
 		</p>
 
 		<div class="row">
@@ -216,6 +218,41 @@
 				updateOutput();
 			}
 
+			// Undo/redo with a 30-step history per direction. Each stack stores
+			// pre-mutation snapshots; a new mutation invalidates the redo stack.
+			const HISTORY_MAX = 30;
+			const undoStack = [];
+			const redoStack = [];
+			function snapshot() {
+				return cells.map((row) => row.slice());
+			}
+			function pushCapped(stack, snap) {
+				stack.push(snap);
+				if (stack.length > HISTORY_MAX) stack.shift();
+			}
+			function clearHistory() {
+				undoStack.length = 0;
+				redoStack.length = 0;
+			}
+			function commit() {
+				pushCapped(undoStack, snapshot());
+				redoStack.length = 0;
+			}
+			function undo() {
+				if (undoStack.length === 0) return;
+				pushCapped(redoStack, snapshot());
+				cells = undoStack.pop();
+				render();
+				updateOutput();
+			}
+			function redo() {
+				if (redoStack.length === 0) return;
+				pushCapped(undoStack, snapshot());
+				cells = redoStack.pop();
+				render();
+				updateOutput();
+			}
+
 			// Painting via mouse drag.
 			let painting = null;
 			function targetCell(e) {
@@ -228,6 +265,7 @@
 				e.preventDefault();
 				const rc = targetCell(e);
 				if (!rc) return;
+				commit();
 				painting = cells[rc.r][rc.c] ? 0 : 1;
 				setCell(rc.r, rc.c, painting);
 			});
@@ -241,19 +279,23 @@
 				painting = null;
 			});
 
-			// Toolbar.
+			// Toolbar. Size change resets the grid and clears history (snapshots
+			// at a different size aren't meaningful to restore).
 			sizeSel.addEventListener("change", () => {
 				size = +sizeSel.value;
 				cells = makeEmpty(size);
+				clearHistory();
 				render();
 				updateOutput();
 			});
 			document.getElementById("clear").addEventListener("click", () => {
+				commit();
 				cells = makeEmpty(size);
 				render();
 				updateOutput();
 			});
 			document.getElementById("fill").addEventListener("click", () => {
+				commit();
 				cells = Array.from({ length: size }, () =>
 					new Array(size).fill(1),
 				);
@@ -261,36 +303,43 @@
 				updateOutput();
 			});
 			document.getElementById("invert").addEventListener("click", () => {
+				commit();
 				cells = cells.map((row) => row.map((v) => (v ? 0 : 1)));
 				render();
 				updateOutput();
 			});
 			document.getElementById("hflip").addEventListener("click", () => {
+				commit();
 				cells = cells.map((row) => [...row].reverse());
 				render();
 				updateOutput();
 			});
 			document.getElementById("vflip").addEventListener("click", () => {
+				commit();
 				cells = [...cells].reverse();
 				render();
 				updateOutput();
 			});
 			document.getElementById("shiftL").addEventListener("click", () => {
+				commit();
 				cells = cells.map((row) => [...row.slice(1), 0]);
 				render();
 				updateOutput();
 			});
 			document.getElementById("shiftR").addEventListener("click", () => {
+				commit();
 				cells = cells.map((row) => [0, ...row.slice(0, -1)]);
 				render();
 				updateOutput();
 			});
 			document.getElementById("shiftU").addEventListener("click", () => {
+				commit();
 				cells = [...cells.slice(1), new Array(size).fill(0)];
 				render();
 				updateOutput();
 			});
 			document.getElementById("shiftD").addEventListener("click", () => {
+				commit();
 				cells = [new Array(size).fill(0), ...cells.slice(0, -1)];
 				render();
 				updateOutput();
@@ -338,6 +387,13 @@
 					return;
 				}
 				const n = parsed.length;
+				if (n === size) {
+					commit();
+				} else {
+					// Loading a different size; the snapshot wouldn't be
+					// meaningful (different dimensions), so clear history.
+					clearHistory();
+				}
 				cells = parsed;
 				if (n !== size) {
 					// Snap to nearest supported size if exact match exists; otherwise allow it.
@@ -355,6 +411,24 @@
 				}
 				render();
 				updateOutput();
+			});
+
+			// Cmd-Z (Mac) / Ctrl-Z (Win/Linux) for undo; add Shift for redo.
+			// Ctrl-Y also redoes (Windows convention). When the textarea is
+			// focused we yield to native textarea undo, which is the more
+			// useful behavior while editing pasted text.
+			document.addEventListener("keydown", (e) => {
+				if (e.target && e.target.tagName === "TEXTAREA") return;
+				if (!(e.metaKey || e.ctrlKey)) return;
+				const key = e.key.toLowerCase();
+				if (key === "z") {
+					e.preventDefault();
+					if (e.shiftKey) redo();
+					else undo();
+				} else if (key === "y") {
+					e.preventDefault();
+					redo();
+				}
 			});
 
 			// Initial state.
