@@ -516,38 +516,50 @@ export const poopSprite: readonly number[][] = [
 	[1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
-// 12x6 feed icon: single-stroke bowl outline with a horizontal noodle/chopstick
-// stroke above the rim. Centered in the left half of the menu strip.
+// 10x10 feed icon: single-stroke fork and knife. Centered in the left half
+// of the menu strip.
 export const feedIcon: readonly number[][] = [
-	[0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-	[0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+	[1, 0, 1, 0, 1, 0, 0, 1, 1, 0],
+	[1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+	[1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+	[1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+	[1, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+	[0, 0, 1, 0, 0, 0, 0, 1, 1, 0],
+	[0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+	[0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+	[0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+	[0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
 ]
 
-// 12x6 clean icon: single-stroke broom. Vertical handle near the top, flaring
-// bristle lines below. Centered in the right half of the menu strip.
+// 10x10 clean icon: single-stroke bathtub with a towel and steam. Centered
+// in the middle of the menu strip.
 export const cleanIcon: readonly number[][] = [
-	[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-	[0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-	[0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
-	[0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
-	[1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+	[0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+	[0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+	[0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+	[0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+	[0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+	[1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+	[0, 1, 1, 0, 1, 0, 0, 0, 1, 0],
+	[0, 1, 1, 1, 1, 0, 0, 0, 1, 0],
+	[0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+	[0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
 ]
 
-// 12x6 stats icon: ascending bar chart, three vertical bars of increasing
+// 10x10 stats icon: ascending bar chart, three vertical bars of increasing
 // height. Same brightness convention as feed/clean icons (rendered dim or
 // full-brightness via prerender's brightness multiplier).
 export const statsIcon: readonly number[][] = [
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
-	[0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-	[0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-	[0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
-	[0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+	[1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+	[1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+	[1, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+	[1, 0, 0, 1, 0, 1, 0, 0, 1, 0],
+	[1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+	[1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+	[1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+	[1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+	[1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
 // 5x5 filled heart: two upper lobes with a clear bottom tip.
