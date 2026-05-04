@@ -67,7 +67,7 @@ test('applyExecute: feed at hunger=5 sets rejection and returns to pet', () => {
 	expect(r.screen).toBe('pet')
 })
 
-test('applyExecute: feed when action active sets rejection', () => {
+test('applyExecute: feed while action active dismisses silently (no rejection)', () => {
 	const s = pet({
 		screen: 'menu',
 		menuCursor: 'feed',
@@ -77,7 +77,7 @@ test('applyExecute: feed when action active sets rejection', () => {
 	const r = applyExecute(s, 1000, 1)
 	expect(r.hunger).toBe(2)
 	expect(r.action).toEqual({ kind: 'feed', until: 5000 })
-	expect(r.rejection).toEqual({ until: 4000 })
+	expect(r.rejection).toBeUndefined()
 	expect(r.screen).toBe('pet')
 })
 

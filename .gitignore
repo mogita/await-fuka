@@ -3,3 +3,4 @@ demos/
 node_modules/
 .DS_Store
 docs/
+.playwright-mcp/

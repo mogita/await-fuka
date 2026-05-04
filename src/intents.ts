@@ -53,8 +53,12 @@ export function applyExecute(
 	const rejectionUntil = alignToMaskCycle(now + REJECTION_FEEDBACK_MS / ws)
 
 	if (state.menuCursor === 'feed') {
-		const blocked = state.action !== undefined || state.hunger >= HUNGER_MAX
-		if (blocked) {
+		// Eat animation still playing: silently dismiss to avoid a spurious
+		// head-shake on rapid taps. The pet is mid-eat, not refusing food.
+		if (state.action !== undefined) {
+			return { ...state, screen: 'pet' }
+		}
+		if (state.hunger >= HUNGER_MAX) {
 			return {
 				...state,
 				screen: 'pet',

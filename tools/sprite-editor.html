@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sprite Editor</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 1em; max-width: 1100px; }
+  h1 { font-size: 1.2em; margin: 0 0 0.5em 0; }
+  .row { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; margin: 0.4em 0; }
+  .row > label { display: inline-flex; gap: 0.3em; align-items: center; }
+  button, select { font: inherit; padding: 0.25em 0.6em; }
+  .work { display: flex; gap: 1em; align-items: flex-start; flex-wrap: wrap; margin-top: 0.5em; }
+  #grid {
+    display: grid;
+    border: 1px solid #777;
+    width: fit-content;
+    user-select: none;
+    cursor: crosshair;
+  }
+  .cell {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #eee;
+  }
+  .cell.on { background: #0f380f; }
+  .cell:hover { box-shadow: inset 0 0 0 1px #f08020; }
+  #preview {
+    border: 1px solid #777;
+    image-rendering: pixelated;
+  }
+  #side-controls { display: flex; flex-direction: column; gap: 0.4em; }
+  textarea {
+    width: 100%;
+    height: 18em;
+    font: 12px ui-monospace, monospace;
+    box-sizing: border-box;
+  }
+  .hint { color: #666; font-size: 0.9em; }
+  .danger { color: #b00; }
+  kbd { font: 11px ui-monospace, monospace; background: #eee; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<h1>Sprite Editor</h1>
+<p class="hint">
+  Click or drag to paint. The first cell you press decides paint mode (off → on, or on → off) for the whole drag.
+  Output mirrors the TS literal used in <code>src/sprites/*.ts</code>; paste over it and click Load to edit an existing sprite.
+</p>
+
+<div class="row">
+  <label>Size:
+    <select id="size">
+      <option>16</option>
+      <option>20</option>
+      <option selected>24</option>
+      <option>32</option>
+      <option>40</option>
+      <option>48</option>
+      <option>56</option>
+      <option>64</option>
+    </select>
+  </label>
+  <button id="clear">Clear</button>
+  <button id="fill">Fill</button>
+  <button id="invert">Invert</button>
+  <button id="hflip">Flip H</button>
+  <button id="vflip">Flip V</button>
+  <span style="margin-left: 0.5em;">Shift:</span>
+  <button id="shiftL" title="Shift left">←</button>
+  <button id="shiftR" title="Shift right">→</button>
+  <button id="shiftU" title="Shift up">↑</button>
+  <button id="shiftD" title="Shift down">↓</button>
+</div>
+
+<div class="work">
+  <div id="grid"></div>
+  <div id="side-controls">
+    <strong>Preview (1:1)</strong>
+    <canvas id="preview" width="24" height="24"></canvas>
+    <div class="hint" id="dims"></div>
+  </div>
+</div>
+
+<div class="row" style="margin-top: 1em;">
+  <strong>Output</strong>
+  <button id="copy">Copy</button>
+  <button id="load">Load from text</button>
+  <span class="hint">paste a TS literal above and click Load</span>
+</div>
+<textarea id="output" spellcheck="false"></textarea>
+
+<script>
+  let size = 24;
+  let cells = [];
+
+  const grid = document.getElementById('grid');
+  const sizeSel = document.getElementById('size');
+  const output = document.getElementById('output');
+  const preview = document.getElementById('preview');
+  const dims = document.getElementById('dims');
+
+  function makeEmpty(n) {
+    return Array.from({ length: n }, () => new Array(n).fill(0));
+  }
+
+  function cellPx() {
+    return Math.max(8, Math.min(28, Math.floor(720 / size)));
+  }
+
+  function render() {
+    const px = cellPx();
+    grid.style.gridTemplateColumns = `repeat(${size}, ${px}px)`;
+    grid.style.gridTemplateRows = `repeat(${size}, ${px}px)`;
+    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const div = document.createElement('div');
+        div.className = 'cell' + (cells[r][c] ? ' on' : '');
+        div.dataset.r = r;
+        div.dataset.c = c;
+        frag.appendChild(div);
+      }
+    }
+    grid.appendChild(frag);
+    preview.width = size;
+    preview.height = size;
+    paintPreview();
+    dims.textContent = `${size} × ${size}`;
+  }
+
+  function paintPreview() {
+    const ctx = preview.getContext('2d');
+    const data = ctx.createImageData(size, size);
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const i = (r * size + c) * 4;
+        const on = cells[r][c] === 1;
+        data.data[i + 0] = on ? 0x0f : 0x9b;
+        data.data[i + 1] = on ? 0x38 : 0xbc;
+        data.data[i + 2] = on ? 0x0f : 0x0f;
+        data.data[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(data, 0, 0);
+  }
+
+  function updateOutput() {
+    const lines = cells.map(row => '\t[' + row.join(', ') + '],');
+    output.value = '[\n' + lines.join('\n') + '\n]';
+    paintPreview();
+  }
+
+  function setCell(r, c, value) {
+    if (r < 0 || r >= size || c < 0 || c >= size) return;
+    if (cells[r][c] === value) return;
+    cells[r][c] = value;
+    const idx = r * size + c;
+    const node = grid.children[idx];
+    if (node) node.classList.toggle('on', value === 1);
+    updateOutput();
+  }
+
+  // Painting via mouse drag.
+  let painting = null;
+  function targetCell(e) {
+    const t = e.target;
+    if (!t || !t.classList.contains('cell')) return null;
+    return { r: +t.dataset.r, c: +t.dataset.c };
+  }
+
+  grid.addEventListener('mousedown', e => {
+    e.preventDefault();
+    const rc = targetCell(e);
+    if (!rc) return;
+    painting = cells[rc.r][rc.c] ? 0 : 1;
+    setCell(rc.r, rc.c, painting);
+  });
+  grid.addEventListener('mouseover', e => {
+    if (painting === null) return;
+    const rc = targetCell(e);
+    if (!rc) return;
+    setCell(rc.r, rc.c, painting);
+  });
+  document.addEventListener('mouseup', () => { painting = null; });
+
+  // Toolbar.
+  sizeSel.addEventListener('change', () => {
+    size = +sizeSel.value;
+    cells = makeEmpty(size);
+    render();
+    updateOutput();
+  });
+  document.getElementById('clear').addEventListener('click', () => {
+    cells = makeEmpty(size);
+    render();
+    updateOutput();
+  });
+  document.getElementById('fill').addEventListener('click', () => {
+    cells = Array.from({ length: size }, () => new Array(size).fill(1));
+    render();
+    updateOutput();
+  });
+  document.getElementById('invert').addEventListener('click', () => {
+    cells = cells.map(row => row.map(v => (v ? 0 : 1)));
+    render();
+    updateOutput();
+  });
+  document.getElementById('hflip').addEventListener('click', () => {
+    cells = cells.map(row => [...row].reverse());
+    render();
+    updateOutput();
+  });
+  document.getElementById('vflip').addEventListener('click', () => {
+    cells = [...cells].reverse();
+    render();
+    updateOutput();
+  });
+  document.getElementById('shiftL').addEventListener('click', () => {
+    cells = cells.map(row => [...row.slice(1), 0]);
+    render();
+    updateOutput();
+  });
+  document.getElementById('shiftR').addEventListener('click', () => {
+    cells = cells.map(row => [0, ...row.slice(0, -1)]);
+    render();
+    updateOutput();
+  });
+  document.getElementById('shiftU').addEventListener('click', () => {
+    cells = [...cells.slice(1), new Array(size).fill(0)];
+    render();
+    updateOutput();
+  });
+  document.getElementById('shiftD').addEventListener('click', () => {
+    cells = [new Array(size).fill(0), ...cells.slice(0, -1)];
+    render();
+    updateOutput();
+  });
+
+  document.getElementById('copy').addEventListener('click', async () => {
+    output.select();
+    try { await navigator.clipboard.writeText(output.value); }
+    catch { document.execCommand('copy'); }
+  });
+
+  function parse(text) {
+    // Match every [...] that contains no nested brackets.
+    const inner = text.match(/\[([^\[\]]*)\]/g);
+    if (!inner) return null;
+    const rows = [];
+    for (const m of inner) {
+      const nums = m
+        .replace(/[\[\]]/g, '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      if (nums.length === 0) continue;
+      if (!nums.every(n => n === '0' || n === '1')) continue;
+      rows.push(nums.map(Number));
+    }
+    if (rows.length === 0) return null;
+    const n = rows[0].length;
+    if (!rows.every(r => r.length === n)) return null;
+    if (rows.length !== n) return null;
+    return rows;
+  }
+
+  document.getElementById('load').addEventListener('click', () => {
+    const parsed = parse(output.value);
+    if (!parsed) {
+      alert('Could not parse a square grid of 0/1 from the text.');
+      return;
+    }
+    const n = parsed.length;
+    cells = parsed;
+    if (n !== size) {
+      // Snap to nearest supported size if exact match exists; otherwise allow it.
+      const supported = [...sizeSel.options].map(o => +o.value);
+      if (supported.includes(n)) sizeSel.value = String(n);
+      else {
+        // Add a custom option so the dropdown reflects the loaded size.
+        const opt = document.createElement('option');
+        opt.value = String(n);
+        opt.textContent = String(n);
+        sizeSel.appendChild(opt);
+        sizeSel.value = String(n);
+      }
+      size = n;
+    }
+    render();
+    updateOutput();
+  });
+
+  // Initial state.
+  cells = makeEmpty(size);
+  render();
+  updateOutput();
+</script>
+</body>
+</html>
