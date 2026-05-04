@@ -10,6 +10,7 @@ const FILES = [
 	'src/sprites/bodies.ts',
 	'src/sprites/faces.ts',
 	'src/sprites/heads.ts',
+	'src/sprites/backs.ts',
 	'src/state.ts',
 	'src/evolution.ts',
 	'src/tick.ts',

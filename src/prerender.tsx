@@ -1,5 +1,5 @@
 import { HStack, Rectangle, VStack } from 'await'
-import { LED_FG } from './config'
+import { LED_BG, LED_FG } from './config'
 import type { AnimatedSprite } from './sprites'
 import {
 	cleanIcon,
@@ -18,6 +18,7 @@ import {
 	poopSprite,
 	statsIcon,
 } from './sprites'
+import { wing0Back, wing1Back } from './sprites/backs'
 import type { BodyAnimSet } from './sprites/bodies'
 import {
 	lankyBlobBody,
@@ -68,6 +69,70 @@ function renderBitmap(
 	)
 }
 
+// Renders an opaque LED_BG fill cell wherever the sprite has a 1; transparent
+// elsewhere. Used for the body-shaped occluder layer painted between wings
+// and the body silhouette so wing pixels inside the body bounds get hidden.
+function renderBitmapBg(sprite: readonly number[][]): NativeView {
+	return (
+		<VStack spacing={0}>
+			{sprite.map((row) => (
+				<HStack spacing={0}>
+					{row.map((v) => (
+						<Rectangle
+							sides={CELL_SIZE}
+							fill={v > 0 ? LED_BG : ''}
+							opacity={v > 0 ? 1 : 0}
+						/>
+					))}
+				</HStack>
+			))}
+		</VStack>
+	)
+}
+
+// Floodfill the canvas exterior; cells not reached are inside the silhouette.
+// Returns a bitmap with 1 for every cell INSIDE the body shape (silhouette +
+// interior), used to derive the occluder mask above.
+function bodyMaskFor(silhouette: readonly number[][]): readonly number[][] {
+	const rows = silhouette.length
+	const cols = silhouette[0]!.length
+	const reachable: boolean[][] = Array.from({ length: rows }, () =>
+		new Array(cols).fill(false),
+	)
+	const queue: Array<[number, number]> = []
+	const seed = (r: number, c: number) => {
+		if (silhouette[r]![c] === 0 && !reachable[r]![c]) {
+			reachable[r]![c] = true
+			queue.push([r, c])
+		}
+	}
+	for (let r = 0; r < rows; r++) {
+		seed(r, 0)
+		seed(r, cols - 1)
+	}
+	for (let c = 0; c < cols; c++) {
+		seed(0, c)
+		seed(rows - 1, c)
+	}
+	while (queue.length > 0) {
+		const [r, c] = queue.shift()!
+		const neighbors: Array<[number, number]> = [
+			[r - 1, c],
+			[r + 1, c],
+			[r, c - 1],
+			[r, c + 1],
+		]
+		for (const [nr, nc] of neighbors) {
+			if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue
+			if (reachable[nr]![nc]) continue
+			if (silhouette[nr]![nc] !== 0) continue
+			reachable[nr]![nc] = true
+			queue.push([nr, nc])
+		}
+	}
+	return reachable.map((row) => row.map((v) => (v ? 0 : 1)))
+}
+
 // FNV-1a 32-bit hash over JSON.stringify of every sprite import. Used to
 // detect bitmap changes between bundle versions so the prerender knows when
 // to regenerate the on-disk PNG cache. Cheap to compute (small integer
@@ -77,7 +142,7 @@ function hashSprites(): number {
 	const data = JSON.stringify([
 		// Sentinel: bump when assets/* set changes shape so existing devices
 		// invalidate their cache.
-		'v4-no-horns',
+		'v5-wings',
 		eggAnim.frames,
 		petIdleAnim.frames,
 		petHungryAnim.frames,
@@ -125,6 +190,8 @@ function hashSprites(): number {
 		halo,
 		crown,
 		plant,
+		wing0Back.frames,
+		wing1Back.frames,
 	])
 	let h = 0x811c9dc5
 	for (let i = 0; i < data.length; i++) {
@@ -219,9 +286,14 @@ export function preRender(): void {
 		]
 		for (const [stateName, anim] of states) {
 			for (let i = 0; i < anim.frames.length; i++) {
+				const frame = anim.frames[i]!
 				AwaitFile.saveUIRenderImage(
 					`assets/body-${archetype}-${stateName}-${i}.png`,
-					renderBitmap(anim.frames[i]!),
+					renderBitmap(frame),
+				)
+				AwaitFile.saveUIRenderImage(
+					`assets/body-${archetype}-${stateName}-${i}-mask.png`,
+					renderBitmapBg(bodyMaskFor(frame)),
 				)
 			}
 		}
@@ -254,6 +326,20 @@ export function preRender(): void {
 	AwaitFile.saveUIRenderImage('assets/head-halo.png', renderBitmap(halo))
 	AwaitFile.saveUIRenderImage('assets/head-crown.png', renderBitmap(crown))
 	AwaitFile.saveUIRenderImage('assets/head-plant.png', renderBitmap(plant))
+
+	// Back attachments.
+	const backs: Array<[string, AnimatedSprite]> = [
+		['wing0', wing0Back],
+		['wing1', wing1Back],
+	]
+	for (const [name, anim] of backs) {
+		for (let i = 0; i < anim.frames.length; i++) {
+			AwaitFile.saveUIRenderImage(
+				`assets/back-${name}-${i}.png`,
+				renderBitmap(anim.frames[i]!),
+			)
+		}
+	}
 
 	AwaitFile.saveUIRenderImage('assets/poop.png', renderBitmap(poopSprite))
 	AwaitFile.saveUIRenderImage(

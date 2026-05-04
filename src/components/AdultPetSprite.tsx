@@ -2,6 +2,8 @@ import { Image, Time, ZStack } from 'await'
 import {
 	AdultBodyState,
 	AdultFaceExpression,
+	adultBackUrls,
+	adultBodyMaskUrls,
 	adultBodyUrls,
 	adultFaceUrl,
 	adultHeadOffsetRows,
@@ -35,7 +37,8 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	if (
 		state.adultBody === undefined ||
 		state.adultFace === undefined ||
-		state.adultHead === undefined
+		state.adultHead === undefined ||
+		state.adultBack === undefined
 	) {
 		return undefined
 	}
@@ -45,8 +48,10 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const shaking = petAdultIsShaking(state)
 
 	const bodyUrls = adultBodyUrls(state.adultBody, bodyState)
+	const bodyMaskUrls = adultBodyMaskUrls(state.adultBody, bodyState)
 	const faceUrl = adultFaceUrl(state.adultFace, faceExpression)
 	const headUrl = adultHeadUrl(state.adultHead)
+	const backUrls = adultBackUrls(state.adultBack)
 	const headOffsetY = (adultHeadOffsetRows(state.adultBody) / 24) * side
 
 	const baseDate = new Date()
@@ -71,6 +76,30 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const layeredFrame = (frameIndex: 0 | 1) => {
 		const layers: NativeView[] = []
 		const breathY = frameIndex === 0 ? 0 : breathOffset
+		// Wings (behind everything) → body-shaped LED_BG occluder → body
+		// silhouette → face → head. The occluder paints background-color
+		// over wing pixels that fall inside the body bounds, so the body
+		// always fully covers wings beneath it.
+		if (backUrls) {
+			layers.push(
+				<Image
+					url={backUrls[frameIndex]}
+					resizable
+					interpolation='none'
+					frame={{ width: side, height: side }}
+					offset={{ x: 0, y: breathY }}
+				/>,
+			)
+			layers.push(
+				<Image
+					url={bodyMaskUrls[frameIndex]}
+					resizable
+					interpolation='none'
+					frame={{ width: side, height: side }}
+					offset={{ x: 0, y: breathY }}
+				/>,
+			)
+		}
 		layers.push(
 			<Image
 				url={bodyUrls[frameIndex]}

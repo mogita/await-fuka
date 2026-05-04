@@ -3,8 +3,11 @@ import {
 	ADULT_CROWN_WEIGHT_MIN,
 	ADULT_HALO_HAPPINESS_MIN,
 	ADULT_PLANT_POOP_MIN_MS,
+	ADULT_WING0_HAPPINESS_MIN,
+	ADULT_WING1_HAPPINESS_MIN,
 } from './config'
 import {
+	BackAttachment,
 	BodyArchetype,
 	FacePersonality,
 	GameState,
@@ -60,6 +63,12 @@ export function headFromCare(
 	return 'bare'
 }
 
+export function backFromCare(avgHappiness: number): BackAttachment {
+	if (avgHappiness >= ADULT_WING1_HAPPINESS_MIN) return 'wing1'
+	if (avgHappiness >= ADULT_WING0_HAPPINESS_MIN) return 'wing0'
+	return 'bare'
+}
+
 export function applyAdulthoodSnapshot(
 	s: GameState,
 	now: number,
@@ -83,5 +92,6 @@ export function applyAdulthoodSnapshot(
 			},
 			worldSpeed,
 		),
+		adultBack: backFromCare(avgHappiness),
 	}
 }

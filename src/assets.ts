@@ -1,5 +1,6 @@
 import { HAPPY_THRESHOLDS } from './config'
 import {
+	BackAttachment,
 	BodyArchetype,
 	FacePersonality,
 	GameState,
@@ -83,6 +84,16 @@ export function adultBodyUrls(
 	]
 }
 
+export function adultBodyMaskUrls(
+	archetype: BodyArchetype,
+	state: AdultBodyState,
+): readonly [string, string] {
+	return [
+		`assets/body-${archetype}-${state}-0-mask.png`,
+		`assets/body-${archetype}-${state}-1-mask.png`,
+	]
+}
+
 // Vertical offset (in 24-cell rows) of each archetype's head TOP within its
 // bitmap. Head attachments (halo, crown, plant) are authored with
 // their attach line at row 0, so non-zero offsets shift the attachment down
@@ -108,4 +119,11 @@ export function adultFaceUrl(
 export function adultHeadUrl(attachment: HeadAttachment): string | undefined {
 	if (attachment === 'bare') return undefined
 	return `assets/head-${attachment}.png`
+}
+
+export function adultBackUrls(
+	attachment: BackAttachment,
+): readonly [string, string] | undefined {
+	if (attachment === 'bare') return undefined
+	return [`assets/back-${attachment}-0.png`, `assets/back-${attachment}-1.png`]
 }

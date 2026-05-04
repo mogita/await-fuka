@@ -42,6 +42,12 @@ export const ADULT_HALO_HAPPINESS_MIN = 90
 export const ADULT_CROWN_WEIGHT_MIN = 40
 export const ADULT_CROWN_HAPPINESS_MIN = 80
 export const ADULT_PLANT_POOP_MIN_MS = 24 * 60 * 60 * 1000
+// Wing triggers by avgHappiness:
+//   0..40   → bare
+//   41..80  → wing0
+//   81..100 → wing1
+export const ADULT_WING0_HAPPINESS_MIN = 41
+export const ADULT_WING1_HAPPINESS_MIN = 81
 
 export const STORE_KEY = 'fuka.state.v1'
 
