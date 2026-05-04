@@ -12,8 +12,8 @@ import { AdultPetSprite } from './AdultPetSprite'
 const PET_SIZE_PCT = 0.5
 const PET_CENTER_Y_PCT = 0.4
 const POOP_SIZE_PCT = 0.18
-const POOP_OFFSET_X_PCT = 0.32
-const POOP_OFFSET_Y_PCT = 0.1
+const POOP_OFFSET_X_PCT = 0.36
+const POOP_OFFSET_Y_PCT = 0.2
 const GROUND_Y_PCT = 0.73
 const GROUND_HEIGHT_PCT = 0.012
 const GROUND_WIDTH_PCT = 0.85
