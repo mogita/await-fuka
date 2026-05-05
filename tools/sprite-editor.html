@@ -4,6 +4,12 @@
 		<meta charset="UTF-8" />
 		<title>Sprite Editor</title>
 		<style>
+			/* Opts native form controls (button, select, textarea, scrollbars)
+			   into the OS dark-mode rendering. The blocks below add explicit
+			   overrides for everything that isn't a native control. */
+			:root {
+				color-scheme: light dark;
+			}
 			body {
 				font:
 					14px system-ui,
@@ -87,6 +93,47 @@
 				background: #eee;
 				padding: 1px 4px;
 				border-radius: 3px;
+			}
+
+			/* Dark-mode overrides. The "on" cell color flips to LED_BG light
+			   green so lit pixels read clearly against the dark canvas; the
+			   preview <canvas> always renders the true Game Boy palette and
+			   is unaffected by theme. */
+			@media (prefers-color-scheme: dark) {
+				body {
+					background: #1a1a1a;
+					color: #ddd;
+				}
+				#grid {
+					border-color: #555;
+				}
+				.cell {
+					background: #2a2a2a;
+					box-shadow: inset 0 0 0 1px #3a3a3a;
+				}
+				.cell.on {
+					background: #9bbc0f;
+				}
+				.cell:hover {
+					box-shadow: inset 0 0 0 1px #f08020;
+				}
+				#preview {
+					border-color: #555;
+				}
+				.hint {
+					color: #888;
+				}
+				.danger {
+					color: #ff7070;
+				}
+				kbd {
+					background: #333;
+				}
+				code {
+					background: #2a2a2a;
+					padding: 1px 3px;
+					border-radius: 3px;
+				}
 			}
 		</style>
 	</head>
