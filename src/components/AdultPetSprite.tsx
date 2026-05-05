@@ -27,6 +27,13 @@ function petAdultIsShaking(state: GameState): boolean {
 	return state.rejection !== undefined && state.action === undefined
 }
 
+// The pet renders into a 40-cell logical canvas. Body/face/head/body-mask
+// stay 24×24 bitmaps and are framed at side×24/40, ZStack-centered. Wings
+// are 40×40 and fill the canvas, so they have ~1.7× the area of the body
+// to extend into.
+const CANVAS_CELLS = 40
+const BODY_CELLS = 24
+
 type Props = {
 	state: GameState
 	side: number
@@ -52,7 +59,11 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const faceUrl = adultFaceUrl(state.adultFace, faceExpression)
 	const headUrl = adultHeadUrl(state.adultHead)
 	const backUrls = adultBackUrls(state.adultBack)
-	const headOffsetY = (adultHeadOffsetRows(state.adultBody) / 24) * side
+
+	// Pixel sizes: one canvas cell, and the rendered body footprint.
+	const cellPx = side / CANVAS_CELLS
+	const bodySide = cellPx * BODY_CELLS
+	const headOffsetY = adultHeadOffsetRows(state.adultBody) * cellPx
 
 	const baseDate = new Date()
 	baseDate.setSeconds(0, 0)
@@ -68,18 +79,16 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 	const faceShakeOffsetA = shaking ? -side * 0.08 : 0
 	const faceShakeOffsetB = shaking ? side * 0.08 : 0
 
-	// Breathing: alternate frames bob the whole pet down by one cell. The fs02
-	// mask flips between frame 0 (rest) and frame 1 (down) at ~1Hz, so the pet
-	// reads as inhaling/exhaling without per-archetype breathing bitmaps.
-	const breathOffset = side / 24
+	// Breathing: bob the pet down one canvas cell on frame 1. The fs02 mask
+	// flips frame 0/1 at ~1Hz so the pet reads as inhaling/exhaling.
+	const breathOffset = cellPx
 
 	const layeredFrame = (frameIndex: 0 | 1) => {
 		const layers: NativeView[] = []
 		const breathY = frameIndex === 0 ? 0 : breathOffset
-		// Wings (behind everything) → body-shaped LED_BG occluder → body
-		// silhouette → face → head. The occluder paints background-color
-		// over wing pixels that fall inside the body bounds, so the body
-		// always fully covers wings beneath it.
+		// Wings (behind everything, full canvas) → body-shaped LED_BG occluder
+		// → body silhouette → face → head. The occluder paints background
+		// over wing pixels that fall inside the body bounds.
 		if (backUrls) {
 			layers.push(
 				<Image
@@ -95,7 +104,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 					url={bodyMaskUrls[frameIndex]}
 					resizable
 					interpolation='none'
-					frame={{ width: side, height: side }}
+					frame={{ width: bodySide, height: bodySide }}
 					offset={{ x: 0, y: breathY }}
 				/>,
 			)
@@ -105,7 +114,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 				url={bodyUrls[frameIndex]}
 				resizable
 				interpolation='none'
-				frame={{ width: side, height: side }}
+				frame={{ width: bodySide, height: bodySide }}
 				offset={{ x: 0, y: breathY }}
 			/>,
 		)
@@ -114,7 +123,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 				url={faceUrl}
 				resizable
 				interpolation='none'
-				frame={{ width: side, height: side }}
+				frame={{ width: bodySide, height: bodySide }}
 				offset={{
 					x: frameIndex === 0 ? faceShakeOffsetA : faceShakeOffsetB,
 					y: breathY,
@@ -127,7 +136,7 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 					url={headUrl}
 					resizable
 					interpolation='none'
-					frame={{ width: side, height: side }}
+					frame={{ width: bodySide, height: bodySide }}
 					offset={{ x: 0, y: headOffsetY + breathY }}
 				/>,
 			)
