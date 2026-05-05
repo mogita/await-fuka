@@ -1,5 +1,7 @@
 import {
 	ACTION_FEEDBACK_MS,
+	HAPPINESS_CLEAN_BONUS,
+	HAPPINESS_FEED_BONUS,
 	HUNGER_MAX,
 	MASK_CYCLE_MS,
 	REJECTION_FEEDBACK_MS,
@@ -51,8 +53,12 @@ export function applyExecute(
 	const rejectionUntil = alignToMaskCycle(now + REJECTION_FEEDBACK_MS / ws)
 
 	if (state.menuCursor === 'feed') {
-		const blocked = state.action !== undefined || state.hunger >= HUNGER_MAX
-		if (blocked) {
+		// Eat animation still playing: silently dismiss to avoid a spurious
+		// head-shake on rapid taps. The pet is mid-eat, not refusing food.
+		if (state.action !== undefined) {
+			return { ...state, screen: 'pet' }
+		}
+		if (state.hunger >= HUNGER_MAX) {
 			return {
 				...state,
 				screen: 'pet',
@@ -68,6 +74,8 @@ export function applyExecute(
 			screen: 'pet',
 			hunger: state.hunger + 1,
 			weight: newWeight,
+			happiness: Math.min(100, state.happiness + HAPPINESS_FEED_BONUS),
+			totalFeedCount: state.totalFeedCount + 1,
 			action: { kind: 'feed', until: actionUntil },
 		}
 	}
@@ -82,6 +90,7 @@ export function applyExecute(
 			screen: 'pet',
 			hasPoop: false,
 			lastPoopCheckAt: now,
+			happiness: Math.min(100, state.happiness + HAPPINESS_CLEAN_BONUS),
 			action: { kind: 'clean', until: actionUntil },
 		}
 	}

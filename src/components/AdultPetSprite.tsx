@@ -1,0 +1,144 @@
+import { Image, Time, ZStack } from 'await'
+import {
+	AdultBodyState,
+	AdultFaceExpression,
+	adultBackUrls,
+	adultBodyMaskUrls,
+	adultBodyUrls,
+	adultFaceUrl,
+	adultHeadOffsetRows,
+	adultHeadUrl,
+} from '../assets'
+import { GameState } from '../state'
+
+function petAdultBodyState(state: GameState): AdultBodyState {
+	if (state.action?.kind === 'feed') return 'eating'
+	if (state.action?.kind === 'clean') return 'cleaning'
+	if (state.hunger === 0) return 'hungry'
+	return 'idle'
+}
+
+function petAdultFaceExpression(state: GameState): AdultFaceExpression {
+	if (state.action !== undefined) return 'active'
+	return 'resting'
+}
+
+function petAdultIsShaking(state: GameState): boolean {
+	return state.rejection !== undefined && state.action === undefined
+}
+
+type Props = {
+	state: GameState
+	side: number
+	offsetY: number
+}
+
+export function AdultPetSprite({ state, side, offsetY }: Props) {
+	if (
+		state.adultBody === undefined ||
+		state.adultFace === undefined ||
+		state.adultHead === undefined ||
+		state.adultBack === undefined
+	) {
+		return undefined
+	}
+
+	const bodyState = petAdultBodyState(state)
+	const faceExpression = petAdultFaceExpression(state)
+	const shaking = petAdultIsShaking(state)
+
+	const bodyUrls = adultBodyUrls(state.adultBody, bodyState)
+	const bodyMaskUrls = adultBodyMaskUrls(state.adultBody, bodyState)
+	const faceUrl = adultFaceUrl(state.adultFace, faceExpression)
+	const headUrl = adultHeadUrl(state.adultHead)
+	const backUrls = adultBackUrls(state.adultBack)
+	const headOffsetY = (adultHeadOffsetRows(state.adultBody) / 24) * side
+
+	const baseDate = new Date()
+	baseDate.setSeconds(0, 0)
+	const phaseAt = (offsetSeconds: number) => (
+		<Time
+			date={new Date(baseDate.getTime() + offsetSeconds * 1000)}
+			font={{ name: 'Widget', features: 'fs02', size: side }}
+			sides={side}
+			contentTransition='identity'
+		/>
+	)
+
+	const faceShakeOffsetA = shaking ? -side * 0.08 : 0
+	const faceShakeOffsetB = shaking ? side * 0.08 : 0
+
+	// Breathing: alternate frames bob the whole pet down by one cell. The fs02
+	// mask flips between frame 0 (rest) and frame 1 (down) at ~1Hz, so the pet
+	// reads as inhaling/exhaling without per-archetype breathing bitmaps.
+	const breathOffset = side / 24
+
+	const layeredFrame = (frameIndex: 0 | 1) => {
+		const layers: NativeView[] = []
+		const breathY = frameIndex === 0 ? 0 : breathOffset
+		// Wings (behind everything) → body-shaped LED_BG occluder → body
+		// silhouette → face → head. The occluder paints background-color
+		// over wing pixels that fall inside the body bounds, so the body
+		// always fully covers wings beneath it.
+		if (backUrls) {
+			layers.push(
+				<Image
+					url={backUrls[frameIndex]}
+					resizable
+					interpolation='none'
+					frame={{ width: side, height: side }}
+					offset={{ x: 0, y: breathY }}
+				/>,
+			)
+			layers.push(
+				<Image
+					url={bodyMaskUrls[frameIndex]}
+					resizable
+					interpolation='none'
+					frame={{ width: side, height: side }}
+					offset={{ x: 0, y: breathY }}
+				/>,
+			)
+		}
+		layers.push(
+			<Image
+				url={bodyUrls[frameIndex]}
+				resizable
+				interpolation='none'
+				frame={{ width: side, height: side }}
+				offset={{ x: 0, y: breathY }}
+			/>,
+		)
+		layers.push(
+			<Image
+				url={faceUrl}
+				resizable
+				interpolation='none'
+				frame={{ width: side, height: side }}
+				offset={{
+					x: frameIndex === 0 ? faceShakeOffsetA : faceShakeOffsetB,
+					y: breathY,
+				}}
+			/>,
+		)
+		if (headUrl) {
+			layers.push(
+				<Image
+					url={headUrl}
+					resizable
+					interpolation='none'
+					frame={{ width: side, height: side }}
+					offset={{ x: 0, y: headOffsetY + breathY }}
+				/>,
+			)
+		}
+		return layers
+	}
+
+	return (
+		<ZStack offset={{ x: 0, y: offsetY }}>
+			<ZStack mask={phaseAt(0)}>{layeredFrame(0)}</ZStack>
+			<ZStack mask={phaseAt(1)}>{layeredFrame(1)}</ZStack>
+		</ZStack>
+	)
+}

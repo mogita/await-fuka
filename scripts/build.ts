@@ -1,16 +1,24 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 
+const minify = process.argv.includes('--minify')
+
 // Topological order: dependencies first, dependents last.
 const FILES = [
 	'src/config.ts',
 	'src/layout.ts',
 	'src/sprites.ts',
+	'src/sprites/bodies.ts',
+	'src/sprites/faces.ts',
+	'src/sprites/heads.ts',
+	'src/sprites/backs.ts',
 	'src/state.ts',
+	'src/evolution.ts',
 	'src/tick.ts',
 	'src/assets.ts',
 	'src/age.ts',
 	'src/prerender.tsx',
 	'src/components/ControlPanel.tsx',
+	'src/components/AdultPetSprite.tsx',
 	'src/components/PetScreen.tsx',
 	'src/components/MenuScreen.tsx',
 	'src/components/StatsScreen.tsx',
@@ -93,6 +101,38 @@ const output = `${header}\n${versionLine}\n${about}\n${author}\n${license}\n${aw
 
 await writeFile('./build/index.tsx', output)
 console.log(`Built build/index.tsx (${output.length} bytes)`)
+
+if (minify) {
+	// --minify-whitespace + --minify-syntax (skip --minify-identifiers): with
+	// --jsx=preserve the JSX text references original component names (e.g.
+	// <ZStack/>), but renaming the imports to short aliases (`ZStack as H`)
+	// would break those references at runtime. Skip identifier mangling to keep
+	// JSX and external names (Await.define, intents, asset urls) addressable.
+	const minifyProc = Bun.spawn(
+		[
+			'bunx',
+			'esbuild',
+			'./build/index.tsx',
+			'--minify-whitespace',
+			'--minify-syntax',
+			'--jsx=preserve',
+			'--target=es2020',
+			'--log-level=error',
+		],
+		{ stderr: 'pipe', stdout: 'pipe' },
+	)
+	const minified = await new Response(minifyProc.stdout).text()
+	const minifyStderr = await new Response(minifyProc.stderr).text()
+	const minifyCode = await minifyProc.exited
+	if (minifyCode !== 0) {
+		console.error(minifyStderr)
+		console.error('Minification FAILED.')
+		process.exit(1)
+	}
+	await writeFile('./build/index.tsx', minified)
+	const ratio = Math.round((minified.length / output.length) * 100)
+	console.log(`Minified to ${minified.length} bytes (${ratio}% of dev).`)
+}
 
 const proc = Bun.spawn(
 	[

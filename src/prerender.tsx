@@ -1,5 +1,6 @@
 import { HStack, Rectangle, VStack } from 'await'
-import { LED_FG } from './config'
+import { LED_BG, LED_FG } from './config'
+import type { AnimatedSprite } from './sprites'
 import {
 	cleanIcon,
 	eggAnim,
@@ -17,6 +18,29 @@ import {
 	poopSprite,
 	statsIcon,
 } from './sprites'
+import { wing0Back, wing1Back } from './sprites/backs'
+import type { BodyAnimSet } from './sprites/bodies'
+import {
+	lankyBlobBody,
+	leanSpikeBody,
+	rolyPolyBody,
+	stoutRockBody,
+} from './sprites/bodies'
+import {
+	faceCheerfulActive,
+	faceCheerfulResting,
+	faceGrumpyActive,
+	faceGrumpyResting,
+	faceInnocentActive,
+	faceInnocentResting,
+	faceSleepyActive,
+	faceSleepyResting,
+	faceSlyActive,
+	faceSlyResting,
+	faceWiseActive,
+	faceWiseResting,
+} from './sprites/faces'
+import { crown, halo, plant } from './sprites/heads'
 
 const CELL_SIZE = 8
 const ASSET_HASH_KEY = 'fuka.assets.hash'
@@ -45,6 +69,70 @@ function renderBitmap(
 	)
 }
 
+// Renders an opaque LED_BG fill cell wherever the sprite has a 1; transparent
+// elsewhere. Used for the body-shaped occluder layer painted between wings
+// and the body silhouette so wing pixels inside the body bounds get hidden.
+function renderBitmapBg(sprite: readonly number[][]): NativeView {
+	return (
+		<VStack spacing={0}>
+			{sprite.map((row) => (
+				<HStack spacing={0}>
+					{row.map((v) => (
+						<Rectangle
+							sides={CELL_SIZE}
+							fill={v > 0 ? LED_BG : ''}
+							opacity={v > 0 ? 1 : 0}
+						/>
+					))}
+				</HStack>
+			))}
+		</VStack>
+	)
+}
+
+// Floodfill the canvas exterior; cells not reached are inside the silhouette.
+// Returns a bitmap with 1 for every cell INSIDE the body shape (silhouette +
+// interior), used to derive the occluder mask above.
+function bodyMaskFor(silhouette: readonly number[][]): readonly number[][] {
+	const rows = silhouette.length
+	const cols = silhouette[0]!.length
+	const reachable: boolean[][] = Array.from({ length: rows }, () =>
+		new Array(cols).fill(false),
+	)
+	const queue: Array<[number, number]> = []
+	const seed = (r: number, c: number) => {
+		if (silhouette[r]![c] === 0 && !reachable[r]![c]) {
+			reachable[r]![c] = true
+			queue.push([r, c])
+		}
+	}
+	for (let r = 0; r < rows; r++) {
+		seed(r, 0)
+		seed(r, cols - 1)
+	}
+	for (let c = 0; c < cols; c++) {
+		seed(0, c)
+		seed(rows - 1, c)
+	}
+	while (queue.length > 0) {
+		const [r, c] = queue.shift()!
+		const neighbors: Array<[number, number]> = [
+			[r - 1, c],
+			[r + 1, c],
+			[r, c - 1],
+			[r, c + 1],
+		]
+		for (const [nr, nc] of neighbors) {
+			if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue
+			if (reachable[nr]![nc]) continue
+			if (silhouette[nr]![nc] !== 0) continue
+			reachable[nr]![nc] = true
+			queue.push([nr, nc])
+		}
+	}
+	return reachable.map((row) => row.map((v) => (v ? 0 : 1)))
+}
+
 // FNV-1a 32-bit hash over JSON.stringify of every sprite import. Used to
 // detect bitmap changes between bundle versions so the prerender knows when
 // to regenerate the on-disk PNG cache. Cheap to compute (small integer
@@ -52,6 +140,9 @@ function renderBitmap(
 // than the existing renderBitmap pass.
 function hashSprites(): number {
 	const data = JSON.stringify([
+		// Sentinel: bump when assets/* set changes shape so existing devices
+		// invalidate their cache.
+		'v5-wings',
 		eggAnim.frames,
 		petIdleAnim.frames,
 		petHungryAnim.frames,
@@ -67,6 +158,40 @@ function hashSprites(): number {
 		faceSmile,
 		faceGrim,
 		faceSad,
+		// v3 evolution sprites
+		rolyPolyBody.idle.frames,
+		rolyPolyBody.eating.frames,
+		rolyPolyBody.cleaning.frames,
+		rolyPolyBody.hungry.frames,
+		lankyBlobBody.idle.frames,
+		lankyBlobBody.eating.frames,
+		lankyBlobBody.cleaning.frames,
+		lankyBlobBody.hungry.frames,
+		leanSpikeBody.idle.frames,
+		leanSpikeBody.eating.frames,
+		leanSpikeBody.cleaning.frames,
+		leanSpikeBody.hungry.frames,
+		stoutRockBody.idle.frames,
+		stoutRockBody.eating.frames,
+		stoutRockBody.cleaning.frames,
+		stoutRockBody.hungry.frames,
+		faceCheerfulResting,
+		faceCheerfulActive,
+		faceSleepyResting,
+		faceSleepyActive,
+		faceSlyResting,
+		faceSlyActive,
+		faceInnocentResting,
+		faceInnocentActive,
+		faceGrumpyResting,
+		faceGrumpyActive,
+		faceWiseResting,
+		faceWiseActive,
+		halo,
+		crown,
+		plant,
+		wing0Back.frames,
+		wing1Back.frames,
 	])
 	let h = 0x811c9dc5
 	for (let i = 0; i < data.length; i++) {
@@ -148,6 +273,73 @@ export function preRender(): void {
 	AwaitFile.saveUIRenderImage('assets/face-smile.png', renderBitmap(faceSmile))
 	AwaitFile.saveUIRenderImage('assets/face-grim.png', renderBitmap(faceGrim))
 	AwaitFile.saveUIRenderImage('assets/face-sad.png', renderBitmap(faceSad))
+
+	// v3 evolution sprites: adult body archetypes.
+	const renderBody = (archetype: string, body: BodyAnimSet) => {
+		const states: Array<
+			['idle' | 'eating' | 'cleaning' | 'hungry', AnimatedSprite]
+		> = [
+			['idle', body.idle],
+			['eating', body.eating],
+			['cleaning', body.cleaning],
+			['hungry', body.hungry],
+		]
+		for (const [stateName, anim] of states) {
+			for (let i = 0; i < anim.frames.length; i++) {
+				const frame = anim.frames[i]!
+				AwaitFile.saveUIRenderImage(
+					`assets/body-${archetype}-${stateName}-${i}.png`,
+					renderBitmap(frame),
+				)
+				AwaitFile.saveUIRenderImage(
+					`assets/body-${archetype}-${stateName}-${i}-mask.png`,
+					renderBitmapBg(bodyMaskFor(frame)),
+				)
+			}
+		}
+	}
+	renderBody('roly-poly', rolyPolyBody)
+	renderBody('lanky-blob', lankyBlobBody)
+	renderBody('lean-spike', leanSpikeBody)
+	renderBody('stout-rock', stoutRockBody)
+
+	// Face overlays.
+	const faces: Array<[string, readonly number[][]]> = [
+		['cheerful-resting', faceCheerfulResting],
+		['cheerful-active', faceCheerfulActive],
+		['sleepy-resting', faceSleepyResting],
+		['sleepy-active', faceSleepyActive],
+		['sly-resting', faceSlyResting],
+		['sly-active', faceSlyActive],
+		['innocent-resting', faceInnocentResting],
+		['innocent-active', faceInnocentActive],
+		['grumpy-resting', faceGrumpyResting],
+		['grumpy-active', faceGrumpyActive],
+		['wise-resting', faceWiseResting],
+		['wise-active', faceWiseActive],
+	]
+	for (const [name, sprite] of faces) {
+		AwaitFile.saveUIRenderImage(`assets/face-${name}.png`, renderBitmap(sprite))
+	}
+
+	// Head attachments.
+	AwaitFile.saveUIRenderImage('assets/head-halo.png', renderBitmap(halo))
+	AwaitFile.saveUIRenderImage('assets/head-crown.png', renderBitmap(crown))
+	AwaitFile.saveUIRenderImage('assets/head-plant.png', renderBitmap(plant))
+
+	// Back attachments.
+	const backs: Array<[string, AnimatedSprite]> = [
+		['wing0', wing0Back],
+		['wing1', wing1Back],
+	]
+	for (const [name, anim] of backs) {
+		for (let i = 0; i < anim.frames.length; i++) {
+			AwaitFile.saveUIRenderImage(
+				`assets/back-${name}-${i}.png`,
+				renderBitmap(anim.frames[i]!),
+			)
+		}
+	}
 
 	AwaitFile.saveUIRenderImage('assets/poop.png', renderBitmap(poopSprite))
 	AwaitFile.saveUIRenderImage(

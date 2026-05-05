@@ -1,4 +1,4 @@
-// @panel {type:'slider',min:1,max:100,step:1}
+// @panel {type:'menu',items:[1,100,1000,10000]}
 export const worldSpeed = 1
 
 // All intervals in milliseconds at worldSpeed=1.
@@ -30,8 +30,24 @@ export const MAX_WEIGHT_LOSS_PER_HR = 1 / 24 // daily cap of 1kg
 
 // Happiness.
 export const FRESH_HAPPINESS = 100
+export const HAPPINESS_DECAY_PER_HR = 1
+export const HAPPINESS_FEED_BONUS = 10
+export const HAPPINESS_CLEAN_BONUS = 15
 // 0..sad: sad face. sad+1..grim: grim face. grim+1..100: smile.
 export const HAPPY_THRESHOLDS = { sad: 33, grim: 66 }
+
+// Evolution.
+export const ADULT_DURATION_MS = 4 * 24 * 60 * 60 * 1000 // 4 days
+export const ADULT_HALO_HAPPINESS_MIN = 90
+export const ADULT_CROWN_WEIGHT_MIN = 40
+export const ADULT_CROWN_HAPPINESS_MIN = 80
+export const ADULT_PLANT_POOP_MIN_MS = 24 * 60 * 60 * 1000
+// Wing triggers by avgHappiness:
+//   0..40   → bare
+//   41..80  → wing0
+//   81..100 → wing1
+export const ADULT_WING0_HAPPINESS_MIN = 41
+export const ADULT_WING1_HAPPINESS_MIN = 81
 
 export const STORE_KEY = 'fuka.state.v1'
 

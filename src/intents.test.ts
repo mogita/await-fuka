@@ -1,9 +1,10 @@
 import { expect, test } from 'bun:test'
+import { HAPPINESS_CLEAN_BONUS, HAPPINESS_FEED_BONUS } from './config'
 import { applyCancel, applyCycle, applyExecute } from './intents'
 import { freshState, GameState } from './state'
 
 function pet(overrides: Partial<GameState> = {}): GameState {
-	return { ...freshState(0), stage: 'pet', ...overrides }
+	return { ...freshState(0), stage: 'youth', ...overrides }
 }
 
 // applyCycle
@@ -66,7 +67,7 @@ test('applyExecute: feed at hunger=5 sets rejection and returns to pet', () => {
 	expect(r.screen).toBe('pet')
 })
 
-test('applyExecute: feed when action active sets rejection', () => {
+test('applyExecute: feed while action active dismisses silently (no rejection)', () => {
 	const s = pet({
 		screen: 'menu',
 		menuCursor: 'feed',
@@ -76,7 +77,7 @@ test('applyExecute: feed when action active sets rejection', () => {
 	const r = applyExecute(s, 1000, 1)
 	expect(r.hunger).toBe(2)
 	expect(r.action).toEqual({ kind: 'feed', until: 5000 })
-	expect(r.rejection).toEqual({ until: 4000 })
+	expect(r.rejection).toBeUndefined()
 	expect(r.screen).toBe('pet')
 })
 
@@ -188,4 +189,72 @@ test('applyCancel: pet -> no-op', () => {
 test('applyCancel: egg -> no-op', () => {
 	const s = freshState(0)
 	expect(applyCancel(s)).toBe(s)
+})
+
+test('applyExecute: feed adds HAPPINESS_FEED_BONUS to happiness, clamped at 100', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		happiness: 50,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.happiness).toBe(50 + HAPPINESS_FEED_BONUS)
+})
+
+test('applyExecute: feed clamps happiness at 100', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		happiness: 95,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.happiness).toBe(100)
+})
+
+test('applyExecute: feed increments totalFeedCount', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		totalFeedCount: 7,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.totalFeedCount).toBe(8)
+})
+
+test('applyExecute: rejected feed does not increment totalFeedCount or happiness', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 5,
+		happiness: 50,
+		totalFeedCount: 7,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.totalFeedCount).toBe(7)
+	expect(r.happiness).toBe(50)
+})
+
+test('applyExecute: clean adds HAPPINESS_CLEAN_BONUS to happiness, clamped at 100', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'clean',
+		hasPoop: true,
+		happiness: 70,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.happiness).toBe(70 + HAPPINESS_CLEAN_BONUS)
+})
+
+test('applyExecute: clean failure does not add happiness', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'clean',
+		hasPoop: false,
+		happiness: 70,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.happiness).toBe(70)
 })

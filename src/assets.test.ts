@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test'
 import {
+	adultBodyUrls,
+	adultFaceUrl,
+	adultHeadUrl,
 	cleanIconUrl,
 	feedIconUrl,
 	happinessFaceUrl,
@@ -9,7 +12,7 @@ import {
 import { freshState, GameState } from './state'
 
 function pet(overrides: Partial<GameState> = {}): GameState {
-	return { ...freshState(0), stage: 'pet', ...overrides }
+	return { ...freshState(0), stage: 'youth', ...overrides }
 }
 
 test('petAnimSpec: egg stage returns 2 egg frames', () => {
@@ -127,4 +130,29 @@ test('petAnimSpec: action wins over rejection', () => {
 	})
 	const spec = petAnimSpec(s)
 	expect(spec.urls[0]).toBe('assets/pet-eating-0.png')
+})
+
+test('adultBodyUrls: returns 2-frame body URLs for archetype + state', () => {
+	expect(adultBodyUrls('roly-poly', 'idle')).toEqual([
+		'assets/body-roly-poly-idle-0.png',
+		'assets/body-roly-poly-idle-1.png',
+	])
+	expect(adultBodyUrls('lanky-blob', 'eating')).toEqual([
+		'assets/body-lanky-blob-eating-0.png',
+		'assets/body-lanky-blob-eating-1.png',
+	])
+})
+
+test('adultFaceUrl: returns face URL for personality + expression', () => {
+	expect(adultFaceUrl('cheerful', 'resting')).toBe(
+		'assets/face-cheerful-resting.png',
+	)
+	expect(adultFaceUrl('grumpy', 'active')).toBe('assets/face-grumpy-active.png')
+})
+
+test('adultHeadUrl: returns URL for non-bare attachments, undefined for bare', () => {
+	expect(adultHeadUrl('halo')).toBe('assets/head-halo.png')
+	expect(adultHeadUrl('crown')).toBe('assets/head-crown.png')
+	expect(adultHeadUrl('plant')).toBe('assets/head-plant.png')
+	expect(adultHeadUrl('bare')).toBeUndefined()
 })

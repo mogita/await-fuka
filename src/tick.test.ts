@@ -1,5 +1,7 @@
 import { expect, test } from 'bun:test'
 import {
+	ADULT_DURATION_MS,
+	HAPPINESS_DECAY_PER_HR,
 	HATCH_DURATION_MS,
 	HUNGER_INTERVAL_MS,
 	MAX_WEIGHT_LOSS_PER_HR,
@@ -18,7 +20,7 @@ test('tick: stays as egg before hatch duration', () => {
 test('tick: hatches at hatch duration', () => {
 	const s = freshState(0)
 	const t = tick(s, HATCH_DURATION_MS, 1)
-	expect(t.stage).toBe('pet')
+	expect(t.stage).toBe('youth')
 	expect(t.lastHungerCheckAt).toBe(HATCH_DURATION_MS)
 	expect(t.lastPoopCheckAt).toBe(HATCH_DURATION_MS)
 })
@@ -26,7 +28,7 @@ test('tick: hatches at hatch duration', () => {
 test('tick: worldSpeed accelerates hatch', () => {
 	const s = freshState(0)
 	const t = tick(s, HATCH_DURATION_MS / 100, 100)
-	expect(t.stage).toBe('pet')
+	expect(t.stage).toBe('youth')
 })
 
 test('tick: pet hunger decays one heart per interval', () => {
@@ -122,7 +124,12 @@ test('nextInterestingMoment: returns next hunger tick when pet', () => {
 test('nextInterestingMoment: returns next poop time when no poop and hunger=0', () => {
 	let s = freshState(0)
 	s = tick(s, HATCH_DURATION_MS, 1)
-	s = { ...s, hunger: 0 }
+	// Push happiness candidate beyond the poop candidate so poop wins.
+	s = {
+		...s,
+		hunger: 0,
+		lastHappinessCheckAt: HATCH_DURATION_MS + POOP_INTERVAL_MS,
+	}
 	expect(nextInterestingMoment(s, HATCH_DURATION_MS, 1)).toBe(
 		HATCH_DURATION_MS + POOP_INTERVAL_MS,
 	)
@@ -151,7 +158,10 @@ test('nextInterestingMoment: returns minimum across multiple candidates', () => 
 test('nextInterestingMoment: returns now + 1h fallback when nothing pending', () => {
 	let s = freshState(0)
 	s = tick(s, HATCH_DURATION_MS, 1)
-	s = { ...s, hunger: 0, hasPoop: true }
+	// Adult stage skips the youth happiness candidate; with hunger=0 and
+	// hasPoop=true (and no rejection/action), no candidates remain and the
+	// fallback path fires.
+	s = { ...s, stage: 'adult', hunger: 0, hasPoop: true }
 	const now = HATCH_DURATION_MS + 1000
 	expect(nextInterestingMoment(s, now, 1)).toBe(now + 60 * 60 * 1000)
 })
@@ -303,4 +313,89 @@ test('nextInterestingMoment: includes rejection expiry when set', () => {
 	expect(nextInterestingMoment(s, HATCH_DURATION_MS, 1)).toBe(
 		HATCH_DURATION_MS + 100,
 	)
+})
+
+const fixedSeed = () => 0.5
+
+test('tick: happiness decays by HAPPINESS_DECAY_PER_HR per hour during youth', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1) // hatch -> youth
+	const startHappiness = s.happiness
+	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 3, 1)
+	expect(s.happiness).toBe(startHappiness - HAPPINESS_DECAY_PER_HR * 3)
+})
+
+test('tick: happiness clamps at 0', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = { ...s, happiness: 2 }
+	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 5, 1)
+	expect(s.happiness).toBe(0)
+})
+
+test('tick: happiness sampled each hourly boundary', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 3, 1)
+	expect(s.lifetimeHappinessSamples).toBe(3)
+	// sum after 3 decays of -1 each, sampling AFTER decay each tick:
+	// sample 1: 99, sample 2: 98, sample 3: 97 → sum = 294
+	expect(s.lifetimeHappinessSum).toBe(99 + 98 + 97)
+})
+
+test('tick: cumulativeHungerZeroMs accrues per hour while hunger=0', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = { ...s, hunger: 0, hungerZeroSince: HATCH_DURATION_MS }
+	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 5, 1)
+	expect(s.cumulativeHungerZeroMs).toBe(HUNGER_INTERVAL_MS * 5)
+})
+
+test('tick: cumulativeUncleanedPoopMs accrues per hour while hasPoop=true', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = { ...s, hasPoop: true }
+	s = tick(s, HATCH_DURATION_MS + HUNGER_INTERVAL_MS * 4, 1)
+	expect(s.cumulativeUncleanedPoopMs).toBe(HUNGER_INTERVAL_MS * 4)
+})
+
+test('tick: happiness mechanics frozen during egg', () => {
+	const s = freshState(0, fixedSeed)
+	const t = tick(s, HATCH_DURATION_MS / 2, 1)
+	expect(t.stage).toBe('egg')
+	expect(t.happiness).toBe(100)
+	expect(t.lifetimeHappinessSamples).toBe(0)
+})
+
+test('tick: youth becomes adult at bornAt + ADULT_DURATION_MS / ws', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	expect(s.stage).toBe('youth')
+	const adultAt = s.bornAt + ADULT_DURATION_MS / 1
+	s = tick(s, adultAt, 1)
+	expect(s.stage).toBe('adult')
+	expect(s.adultBody).toBeDefined()
+	expect(s.adultFace).toBeDefined()
+	expect(s.adultHead).toBeDefined()
+})
+
+test('tick: youth stays youth before ADULT_DURATION_MS', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	const almostAdult = s.bornAt + ADULT_DURATION_MS / 1 - 1000
+	s = tick(s, almostAdult, 1)
+	expect(s.stage).toBe('youth')
+	expect(s.adultBody).toBeUndefined()
+})
+
+test('tick: adult freezes happiness sampling', () => {
+	let s = freshState(0, fixedSeed)
+	s = tick(s, HATCH_DURATION_MS, 1)
+	s = tick(s, s.bornAt + ADULT_DURATION_MS / 1, 1)
+	expect(s.stage).toBe('adult')
+	const samples = s.lifetimeHappinessSamples
+	const happiness = s.happiness
+	s = tick(s, s.bornAt + ADULT_DURATION_MS / 1 + HUNGER_INTERVAL_MS * 5, 1)
+	expect(s.lifetimeHappinessSamples).toBe(samples)
+	expect(s.happiness).toBe(happiness)
 })
