@@ -9,7 +9,14 @@ import {
 	adultHeadOffsetRows,
 	adultHeadUrl,
 } from '../assets'
-import { GameState } from '../state'
+import { debugBack, debugBody, debugFace, debugHead } from '../config'
+import {
+	BackAttachment,
+	BodyArchetype,
+	FacePersonality,
+	GameState,
+	HeadAttachment,
+} from '../state'
 
 function petAdultBodyState(state: GameState): AdultBodyState {
 	if (state.action?.kind === 'feed') return 'eating'
@@ -34,6 +41,23 @@ function petAdultIsShaking(state: GameState): boolean {
 const CANVAS_CELLS = 40
 const BODY_CELLS = 24
 
+// Defaults used when the pet hasn't evolved yet but a debug override forces
+// the adult sprite — pre-adult state has no values for these fields, so we
+// pick something neutral so the override resolves cleanly.
+const DEFAULT_BODY: BodyArchetype = 'roly-poly'
+const DEFAULT_FACE: FacePersonality = 'cheerful'
+const DEFAULT_HEAD: HeadAttachment = 'bare'
+const DEFAULT_BACK: BackAttachment = 'bare'
+
+export function hasAdultDebugOverride(): boolean {
+	return (
+		debugBody !== 'default' ||
+		debugFace !== 'default' ||
+		debugHead !== 'default' ||
+		debugBack !== 'default'
+	)
+}
+
 type Props = {
 	state: GameState
 	side: number
@@ -41,29 +65,37 @@ type Props = {
 }
 
 export function AdultPetSprite({ state, side, offsetY }: Props) {
-	if (
-		state.adultBody === undefined ||
-		state.adultFace === undefined ||
-		state.adultHead === undefined ||
-		state.adultBack === undefined
-	) {
-		return undefined
-	}
+	const adultBody: BodyArchetype =
+		debugBody !== 'default'
+			? (debugBody as BodyArchetype)
+			: (state.adultBody ?? DEFAULT_BODY)
+	const adultFace: FacePersonality =
+		debugFace !== 'default'
+			? (debugFace as FacePersonality)
+			: (state.adultFace ?? DEFAULT_FACE)
+	const adultHead: HeadAttachment =
+		debugHead !== 'default'
+			? (debugHead as HeadAttachment)
+			: (state.adultHead ?? DEFAULT_HEAD)
+	const adultBack: BackAttachment =
+		debugBack !== 'default'
+			? (debugBack as BackAttachment)
+			: (state.adultBack ?? DEFAULT_BACK)
 
 	const bodyState = petAdultBodyState(state)
 	const faceExpression = petAdultFaceExpression(state)
 	const shaking = petAdultIsShaking(state)
 
-	const bodyUrls = adultBodyUrls(state.adultBody, bodyState)
-	const bodyMaskUrls = adultBodyMaskUrls(state.adultBody, bodyState)
-	const faceUrl = adultFaceUrl(state.adultFace, faceExpression)
-	const headUrl = adultHeadUrl(state.adultHead)
-	const backUrls = adultBackUrls(state.adultBack)
+	const bodyUrls = adultBodyUrls(adultBody, bodyState)
+	const bodyMaskUrls = adultBodyMaskUrls(adultBody, bodyState)
+	const faceUrl = adultFaceUrl(adultFace, faceExpression)
+	const headUrl = adultHeadUrl(adultHead)
+	const backUrls = adultBackUrls(adultBack)
 
 	// Pixel sizes: one canvas cell, and the rendered body footprint.
 	const cellPx = side / CANVAS_CELLS
 	const bodySide = cellPx * BODY_CELLS
-	const headOffsetY = adultHeadOffsetRows(state.adultBody) * cellPx
+	const headOffsetY = adultHeadOffsetRows(adultBody) * cellPx
 
 	const baseDate = new Date()
 	baseDate.setSeconds(0, 0)

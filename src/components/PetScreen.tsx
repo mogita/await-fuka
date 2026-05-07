@@ -7,7 +7,7 @@ import {
 } from '../assets'
 import { HUNGER_MAX, LED_BG, LED_FG } from '../config'
 import { GameState } from '../state'
-import { AdultPetSprite } from './AdultPetSprite'
+import { AdultPetSprite, hasAdultDebugOverride } from './AdultPetSprite'
 
 const PET_SIZE_PCT = 0.5
 // Adult pet renders into a 40-cell canvas containing a 24-cell body. Scale up
@@ -16,7 +16,7 @@ const PET_SIZE_PCT = 0.5
 const ADULT_PET_SIZE_PCT = (PET_SIZE_PCT * 40) / 24
 const PET_CENTER_Y_PCT = 0.4
 const POOP_SIZE_PCT = 0.18
-const POOP_OFFSET_X_PCT = 0.36
+const POOP_OFFSET_X_PCT = 0.46
 const POOP_OFFSET_Y_PCT = 0.2
 const GROUND_Y_PCT = 0.73
 const GROUND_HEIGHT_PCT = 0.012
@@ -64,9 +64,11 @@ function buildPetAnim(
 type Props = { state: GameState; side: number }
 
 export function PetScreen({ state, side }: Props) {
-	const isPet = state.stage !== 'egg'
-	const petSize =
-		state.stage === 'adult' ? side * ADULT_PET_SIZE_PCT : side * PET_SIZE_PCT
+	// Debug overrides force the adult sprite regardless of game stage so any
+	// variant can be previewed without waiting for the pet to grow up.
+	const showAdult = state.stage === 'adult' || hasAdultDebugOverride()
+	const isPet = state.stage !== 'egg' || showAdult
+	const petSize = showAdult ? side * ADULT_PET_SIZE_PCT : side * PET_SIZE_PCT
 	const petCenterY = side * PET_CENTER_Y_PCT
 	const poopSize = side * POOP_SIZE_PCT
 	const poopOffsetX = side * POOP_OFFSET_X_PCT
@@ -79,16 +81,15 @@ export function PetScreen({ state, side }: Props) {
 	const heartGap = side * HEART_GAP_PCT
 	const halfSide = side / 2
 
-	const pet =
-		state.stage === 'adult' ? (
-			<AdultPetSprite
-				state={state}
-				side={petSize}
-				offsetY={petCenterY - halfSide}
-			/>
-		) : (
-			buildPetAnim(state, petSize, petCenterY - halfSide)
-		)
+	const pet = showAdult ? (
+		<AdultPetSprite
+			state={state}
+			side={petSize}
+			offsetY={petCenterY - halfSide}
+		/>
+	) : (
+		buildPetAnim(state, petSize, petCenterY - halfSide)
+	)
 	const poop =
 		isPet && state.hasPoop ? (
 			<Image
