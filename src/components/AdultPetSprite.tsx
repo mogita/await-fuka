@@ -108,8 +108,10 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 		/>
 	)
 
-	const faceShakeOffsetA = shaking ? -side * 0.08 : 0
-	const faceShakeOffsetB = shaking ? side * 0.08 : 0
+	// Shake amplitude is body-relative so it doesn't grow with the 40-cell
+	// canvas; otherwise the displacement would be ~1.67x its pre-canvas value.
+	const faceShakeOffsetA = shaking ? -bodySide * 0.08 : 0
+	const faceShakeOffsetB = shaking ? bodySide * 0.08 : 0
 
 	// Breathing: bob the pet down one canvas cell on frame 1. The fs02 mask
 	// flips frame 0/1 at ~1Hz so the pet reads as inhaling/exhaling.
