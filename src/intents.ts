@@ -53,45 +53,39 @@ export function applyExecute(
 	const rejectionUntil = alignToMaskCycle(now + REJECTION_FEEDBACK_MS / ws)
 
 	if (state.menuCursor === 'feed') {
-		// Eat animation still playing: silently dismiss to avoid a spurious
-		// head-shake on rapid taps. The pet is mid-eat, not refusing food.
+		// A valid feed always registers, even while the eat animation from a
+		// previous tap is still playing: the new feed just restarts it. Gating
+		// on action !== undefined here silently dropped rapid taps (#6).
+		const canFeed = !state.hasPoop && state.hunger < HUNGER_MAX
+		if (canFeed) {
+			const newWeight = Math.min(
+				WEIGHT_CAP,
+				state.weight + (WEIGHT_CAP - state.weight) * WEIGHT_GROWTH_FRACTION,
+			)
+			return {
+				...state,
+				screen: 'pet',
+				hunger: state.hunger + 1,
+				weight: newWeight,
+				happiness: Math.min(100, state.happiness + HAPPINESS_FEED_BONUS),
+				totalFeedCount: state.totalFeedCount + 1,
+				action: { kind: 'feed', until: actionUntil },
+				rejection: undefined,
+			}
+		}
+		// Refused: stomach full, or won't eat in a dirty home (clean first).
+		// Hold the head-shake while an animation is still playing so the pet
+		// isn't yanked mid-animation; otherwise show the refusal.
 		if (state.action !== undefined) {
 			return { ...state, screen: 'pet' }
 		}
-		// Won't eat in a dirty home: refuse food (head-shake) until poop is
-		// cleaned, so the user learns to clean first.
-		if (state.hasPoop) {
-			return {
-				...state,
-				screen: 'pet',
-				rejection: { until: rejectionUntil },
-			}
-		}
-		if (state.hunger >= HUNGER_MAX) {
-			return {
-				...state,
-				screen: 'pet',
-				rejection: { until: rejectionUntil },
-			}
-		}
-		const newWeight = Math.min(
-			WEIGHT_CAP,
-			state.weight + (WEIGHT_CAP - state.weight) * WEIGHT_GROWTH_FRACTION,
-		)
-		return {
-			...state,
-			screen: 'pet',
-			hunger: state.hunger + 1,
-			weight: newWeight,
-			happiness: Math.min(100, state.happiness + HAPPINESS_FEED_BONUS),
-			totalFeedCount: state.totalFeedCount + 1,
-			action: { kind: 'feed', until: actionUntil },
-		}
+		return { ...state, screen: 'pet', rejection: { until: rejectionUntil } }
 	}
 
 	if (state.menuCursor === 'clean') {
-		const canClean = state.action === undefined && state.hasPoop
-		if (!canClean) {
+		// Cleaning registers whenever there is poop, even while an animation
+		// from a previous tap is still playing (#6). Nothing to clean -> quiet.
+		if (!state.hasPoop) {
 			return { ...state, screen: 'pet' }
 		}
 		return {
@@ -101,6 +95,7 @@ export function applyExecute(
 			lastPoopCheckAt: now,
 			happiness: Math.min(100, state.happiness + HAPPINESS_CLEAN_BONUS),
 			action: { kind: 'clean', until: actionUntil },
+			rejection: undefined,
 		}
 	}
 

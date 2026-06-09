@@ -137,18 +137,87 @@ test('applyExecute: feed succeeds after poop cleaned (no poop)', () => {
 	expect(r.rejection).toBeUndefined()
 })
 
-test('applyExecute: feed while action active dismisses silently (no rejection)', () => {
+test('applyExecute: rapid feed during eat animation still feeds and restarts it', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		weight: 1,
+		totalFeedCount: 7,
+		action: { kind: 'feed', until: 5000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(3)
+	expect(r.weight).toBeCloseTo(1 + (50 - 1) * 0.02, 5)
+	expect(r.totalFeedCount).toBe(8)
+	expect(r.action).toEqual({ kind: 'feed', until: 4000 })
+	expect(r.rejection).toBeUndefined()
+	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: feed during clean animation switches action to feed', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		action: { kind: 'clean', until: 5000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(3)
+	expect(r.action).toEqual({ kind: 'feed', until: 4000 })
+	expect(r.rejection).toBeUndefined()
+})
+
+test('applyExecute: feed at full during animation stays silent (no shake mid-eat)', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 5,
+		action: { kind: 'feed', until: 5000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(5)
+	expect(r.action).toEqual({ kind: 'feed', until: 5000 })
+	expect(r.rejection).toBeUndefined()
+	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: rapid feed during eat animation refreshes action.until at high worldSpeed', () => {
 	const s = pet({
 		screen: 'menu',
 		menuCursor: 'feed',
 		hunger: 2,
 		action: { kind: 'feed', until: 5000 },
 	})
+	const r = applyExecute(s, 1000, 100)
+	expect(r.hunger).toBe(3)
+	expect(r.action).toEqual({ kind: 'feed', until: 2000 })
+})
+
+test('applyExecute: successful feed clears any in-flight rejection', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		rejection: { until: 9000 },
+	})
 	const r = applyExecute(s, 1000, 1)
-	expect(r.hunger).toBe(2)
-	expect(r.action).toEqual({ kind: 'feed', until: 5000 })
+	expect(r.hunger).toBe(3)
+	expect(r.action).toEqual({ kind: 'feed', until: 4000 })
 	expect(r.rejection).toBeUndefined()
-	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: feed to full then idle tap shakes', () => {
+	const s = pet({ screen: 'menu', menuCursor: 'feed', hunger: 4 })
+	const fed = applyExecute(s, 1000, 1)
+	expect(fed.hunger).toBe(5)
+	expect(fed.action).toEqual({ kind: 'feed', until: 4000 })
+	// Animation has since cleared; tap feed again while full and idle.
+	const idle = { ...fed, action: undefined, screen: 'menu' as const }
+	const r = applyExecute(idle, 9000, 1)
+	expect(r.hunger).toBe(5)
+	expect(r.action).toBeUndefined()
+	expect(r.rejection).toEqual({ until: 12000 }) // ceil((9000 + 2000) / 2000) * 2000
 })
 
 test('applyExecute: feed grows weight clamped at WEIGHT_CAP', () => {
@@ -189,17 +258,65 @@ test('applyExecute: clean with no poop closes menu silently (no rejection)', () 
 	expect(r.screen).toBe('pet')
 })
 
-test('applyExecute: clean when action active closes menu silently', () => {
+test('applyExecute: clean during another animation still cleans and switches action', () => {
 	const s = pet({
 		screen: 'menu',
 		menuCursor: 'clean',
 		hasPoop: true,
+		happiness: 70,
 		action: { kind: 'feed', until: 5000 },
 	})
 	const r = applyExecute(s, 1000, 1)
-	expect(r.hasPoop).toBe(true)
+	expect(r.hasPoop).toBe(false)
+	expect(r.lastPoopCheckAt).toBe(1000)
+	expect(r.happiness).toBe(70 + HAPPINESS_CLEAN_BONUS)
+	expect(r.action).toEqual({ kind: 'clean', until: 4000 })
 	expect(r.rejection).toBeUndefined()
 	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: rapid clean during clean animation still cleans and refreshes action', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'clean',
+		hasPoop: true,
+		happiness: 50,
+		action: { kind: 'clean', until: 5000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hasPoop).toBe(false)
+	expect(r.lastPoopCheckAt).toBe(1000)
+	expect(r.happiness).toBe(50 + HAPPINESS_CLEAN_BONUS)
+	expect(r.action).toEqual({ kind: 'clean', until: 4000 })
+	expect(r.rejection).toBeUndefined()
+	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: clean with no poop during clean animation is silent and leaves action intact', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'clean',
+		hasPoop: false,
+		action: { kind: 'clean', until: 5000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hasPoop).toBe(false)
+	expect(r.action).toEqual({ kind: 'clean', until: 5000 })
+	expect(r.rejection).toBeUndefined()
+	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: successful clean clears any in-flight rejection', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'clean',
+		hasPoop: true,
+		rejection: { until: 9000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hasPoop).toBe(false)
+	expect(r.action).toEqual({ kind: 'clean', until: 4000 })
+	expect(r.rejection).toBeUndefined()
 })
 
 test('applyExecute: stats flips screen to stats', () => {
