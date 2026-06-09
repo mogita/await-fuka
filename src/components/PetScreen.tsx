@@ -10,10 +10,6 @@ import { GameState } from '../state'
 import { AdultPetSprite, hasAdultDebugOverride } from './AdultPetSprite'
 
 const PET_SIZE_PCT = 0.5
-// Adult pet renders into a 40-cell canvas containing a 24-cell body. Scale up
-// so the body's visible size on the widget matches the youth pet — that
-// leaves the wings to extend into the freed (40 - 24) cells of margin.
-const ADULT_PET_SIZE_PCT = (PET_SIZE_PCT * 40) / 24
 const PET_CENTER_Y_PCT = 0.4
 const POOP_SIZE_PCT = 0.18
 const POOP_OFFSET_X_PCT = 0.46
@@ -68,7 +64,7 @@ export function PetScreen({ state, side }: Props) {
 	// variant can be previewed without waiting for the pet to grow up.
 	const showAdult = state.stage === 'adult' || hasAdultDebugOverride()
 	const isPet = state.stage !== 'egg' || showAdult
-	const petSize = showAdult ? side * ADULT_PET_SIZE_PCT : side * PET_SIZE_PCT
+	const petSize = side * PET_SIZE_PCT
 	const petCenterY = side * PET_CENTER_Y_PCT
 	const poopSize = side * POOP_SIZE_PCT
 	const poopOffsetX = side * POOP_OFFSET_X_PCT

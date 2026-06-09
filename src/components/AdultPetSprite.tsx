@@ -2,21 +2,12 @@ import { Image, Time, ZStack } from 'await'
 import {
 	AdultBodyState,
 	AdultFaceExpression,
-	adultBackUrls,
-	adultBodyMaskUrls,
 	adultBodyUrls,
 	adultFaceUrl,
-	adultHeadOffsetRows,
-	adultHeadUrl,
+	moodFromHappiness,
 } from '../assets'
-import { debugBack, debugBody, debugFace, debugHead } from '../config'
-import {
-	BackAttachment,
-	BodyArchetype,
-	FacePersonality,
-	GameState,
-	HeadAttachment,
-} from '../state'
+import { debugBody, debugFace } from '../config'
+import { BodyArchetype, GameState, Mood } from '../state'
 
 function petAdultBodyState(state: GameState): AdultBodyState {
 	if (state.action?.kind === 'feed') return 'eating'
@@ -34,28 +25,16 @@ function petAdultIsShaking(state: GameState): boolean {
 	return state.rejection !== undefined && state.action === undefined
 }
 
-// The pet renders into a 40-cell logical canvas. Body/face/head/body-mask
-// stay 24×24 bitmaps and are framed at side×24/40, ZStack-centered. Wings
-// are 40×40 and fill the canvas, so they have ~1.7× the area of the body
-// to extend into.
-const CANVAS_CELLS = 40
+// Body and face are both 24x24 bitmaps filling the pet canvas; the face
+// overlay paints onto the body's transparent face window (rows 7-13).
 const BODY_CELLS = 24
 
-// Defaults used when the pet hasn't evolved yet but a debug override forces
-// the adult sprite — pre-adult state has no values for these fields, so we
-// pick something neutral so the override resolves cleanly.
+// Default used when the pet hasn't evolved yet but a debug override forces the
+// adult sprite. Pre-adult state has no adultBody, so pick something neutral.
 const DEFAULT_BODY: BodyArchetype = 'roly-poly'
-const DEFAULT_FACE: FacePersonality = 'cheerful'
-const DEFAULT_HEAD: HeadAttachment = 'bare'
-const DEFAULT_BACK: BackAttachment = 'bare'
 
 export function hasAdultDebugOverride(): boolean {
-	return (
-		debugBody !== 'default' ||
-		debugFace !== 'default' ||
-		debugHead !== 'default' ||
-		debugBack !== 'default'
-	)
+	return debugBody !== 'default' || debugFace !== 'default'
 }
 
 type Props = {
@@ -69,33 +48,21 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 		debugBody !== 'default'
 			? (debugBody as BodyArchetype)
 			: (state.adultBody ?? DEFAULT_BODY)
-	const adultFace: FacePersonality =
+	// Face mood is live: derived from current happiness, or forced by the debug
+	// override.
+	const mood: Mood =
 		debugFace !== 'default'
-			? (debugFace as FacePersonality)
-			: (state.adultFace ?? DEFAULT_FACE)
-	const adultHead: HeadAttachment =
-		debugHead !== 'default'
-			? (debugHead as HeadAttachment)
-			: (state.adultHead ?? DEFAULT_HEAD)
-	const adultBack: BackAttachment =
-		debugBack !== 'default'
-			? (debugBack as BackAttachment)
-			: (state.adultBack ?? DEFAULT_BACK)
+			? (debugFace as Mood)
+			: moodFromHappiness(state.happiness)
 
 	const bodyState = petAdultBodyState(state)
 	const faceExpression = petAdultFaceExpression(state)
 	const shaking = petAdultIsShaking(state)
 
 	const bodyUrls = adultBodyUrls(adultBody, bodyState)
-	const bodyMaskUrls = adultBodyMaskUrls(adultBody, bodyState)
-	const faceUrl = adultFaceUrl(adultFace, faceExpression)
-	const headUrl = adultHeadUrl(adultHead)
-	const backUrls = adultBackUrls(adultBack)
+	const faceUrl = adultFaceUrl(mood, faceExpression)
 
-	// Pixel sizes: one canvas cell, and the rendered body footprint.
-	const cellPx = side / CANVAS_CELLS
-	const bodySide = cellPx * BODY_CELLS
-	const headOffsetY = adultHeadOffsetRows(adultBody) * cellPx
+	const cellPx = side / BODY_CELLS
 
 	const baseDate = new Date()
 	baseDate.setSeconds(0, 0)
@@ -108,74 +75,36 @@ export function AdultPetSprite({ state, side, offsetY }: Props) {
 		/>
 	)
 
-	// Shake amplitude is body-relative so it doesn't grow with the 40-cell
-	// canvas; otherwise the displacement would be ~1.67x its pre-canvas value.
-	const faceShakeOffsetA = shaking ? -bodySide * 0.08 : 0
-	const faceShakeOffsetB = shaking ? bodySide * 0.08 : 0
+	// Shake amplitude is body-relative so it reads the same at any render size.
+	const faceShakeOffsetA = shaking ? -side * 0.08 : 0
+	const faceShakeOffsetB = shaking ? side * 0.08 : 0
 
-	// Breathing: bob the pet down one canvas cell on frame 1. The fs02 mask
-	// flips frame 0/1 at ~1Hz so the pet reads as inhaling/exhaling.
+	// Breathing: bob the pet down one cell on frame 1. The fs02 mask flips
+	// frame 0/1 at ~1Hz so the pet reads as inhaling/exhaling.
 	const breathOffset = cellPx
 
-	const layeredFrame = (frameIndex: 0 | 1) => {
-		const layers: NativeView[] = []
+	const layeredFrame = (frameIndex: 0 | 1): NativeView[] => {
 		const breathY = frameIndex === 0 ? 0 : breathOffset
-		// Wings (behind everything, full canvas) → body-shaped LED_BG occluder
-		// → body silhouette → face → head. The occluder paints background
-		// over wing pixels that fall inside the body bounds.
-		if (backUrls) {
-			layers.push(
-				<Image
-					url={backUrls[frameIndex]}
-					resizable
-					interpolation='none'
-					frame={{ width: side, height: side }}
-					offset={{ x: 0, y: breathY }}
-				/>,
-			)
-			layers.push(
-				<Image
-					url={bodyMaskUrls[frameIndex]}
-					resizable
-					interpolation='none'
-					frame={{ width: bodySide, height: bodySide }}
-					offset={{ x: 0, y: breathY }}
-				/>,
-			)
-		}
-		layers.push(
+		// Body silhouette, then the face overlay on top.
+		return [
 			<Image
 				url={bodyUrls[frameIndex]}
 				resizable
 				interpolation='none'
-				frame={{ width: bodySide, height: bodySide }}
+				frame={{ width: side, height: side }}
 				offset={{ x: 0, y: breathY }}
 			/>,
-		)
-		layers.push(
 			<Image
 				url={faceUrl}
 				resizable
 				interpolation='none'
-				frame={{ width: bodySide, height: bodySide }}
+				frame={{ width: side, height: side }}
 				offset={{
 					x: frameIndex === 0 ? faceShakeOffsetA : faceShakeOffsetB,
 					y: breathY,
 				}}
 			/>,
-		)
-		if (headUrl) {
-			layers.push(
-				<Image
-					url={headUrl}
-					resizable
-					interpolation='none'
-					frame={{ width: bodySide, height: bodySide }}
-					offset={{ x: 0, y: headOffsetY + breathY }}
-				/>,
-			)
-		}
-		return layers
+		]
 	}
 
 	return (

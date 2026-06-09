@@ -1,12 +1,5 @@
-import { HAPPY_THRESHOLDS } from './config'
-import {
-	BackAttachment,
-	BodyArchetype,
-	FacePersonality,
-	GameState,
-	HeadAttachment,
-	MenuCursor,
-} from './state'
+import { HAPPY_THRESHOLDS, MOOD_THRESHOLDS } from './config'
+import { BodyArchetype, GameState, MenuCursor, Mood } from './state'
 
 export type PetAnimSpec = {
 	urls: readonly [string, string]
@@ -67,6 +60,16 @@ export function happinessFaceUrl(value: number): string {
 	return 'assets/face-smile.png'
 }
 
+// Live adult face mood from current happiness. Each threshold is the upper
+// bound of its tier (see MOOD_THRESHOLDS).
+export function moodFromHappiness(happiness: number): Mood {
+	if (happiness <= MOOD_THRESHOLDS.miserable) return 'miserable'
+	if (happiness <= MOOD_THRESHOLDS.down) return 'down'
+	if (happiness <= MOOD_THRESHOLDS.neutral) return 'neutral'
+	if (happiness <= MOOD_THRESHOLDS.content) return 'content'
+	return 'radiant'
+}
+
 export const POOP_URL = 'assets/poop.png'
 export const HEART_FILLED_URL = 'assets/heart-filled.png'
 export const HEART_HOLLOW_URL = 'assets/heart-hollow.png'
@@ -84,46 +87,9 @@ export function adultBodyUrls(
 	]
 }
 
-export function adultBodyMaskUrls(
-	archetype: BodyArchetype,
-	state: AdultBodyState,
-): readonly [string, string] {
-	return [
-		`assets/body-${archetype}-${state}-0-mask.png`,
-		`assets/body-${archetype}-${state}-1-mask.png`,
-	]
-}
-
-// Vertical offset (in 24-cell rows) of each archetype's head TOP within its
-// bitmap. Head attachments (halo, crown, plant) are authored with
-// their attach line at row 0, so non-zero offsets shift the attachment down
-// to meet the actual head dome of that archetype.
-const ADULT_HEAD_TOP_ROW: Record<BodyArchetype, number> = {
-	'roly-poly': 0,
-	'lanky-blob': 0,
-	'lean-spike': 0,
-	'stout-rock': 4,
-}
-
-export function adultHeadOffsetRows(archetype: BodyArchetype): number {
-	return ADULT_HEAD_TOP_ROW[archetype]
-}
-
 export function adultFaceUrl(
-	personality: FacePersonality,
+	mood: Mood,
 	expression: AdultFaceExpression,
 ): string {
-	return `assets/face-${personality}-${expression}.png`
-}
-
-export function adultHeadUrl(attachment: HeadAttachment): string | undefined {
-	if (attachment === 'bare') return undefined
-	return `assets/head-${attachment}.png`
-}
-
-export function adultBackUrls(
-	attachment: BackAttachment,
-): readonly [string, string] | undefined {
-	if (attachment === 'bare') return undefined
-	return [`assets/back-${attachment}-0.png`, `assets/back-${attachment}-1.png`]
+	return `assets/face-${mood}-${expression}.png`
 }

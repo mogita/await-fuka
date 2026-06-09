@@ -11,14 +11,8 @@ export const worldSpeed = 1
 // @panel {type:'menu',items:['default','roly-poly','lanky-blob','lean-spike','stout-rock']}
 export const debugBody: string = 'default'
 
-// @panel {type:'menu',items:['default','cheerful','sleepy','sly','innocent','grumpy','wise']}
+// @panel {type:'menu',items:['default','miserable','down','neutral','content','radiant']}
 export const debugFace: string = 'default'
-
-// @panel {type:'menu',items:['default','bare','wing0','wing1']}
-export const debugBack: string = 'default'
-
-// @panel {type:'menu',items:['default','bare','halo','crown','plant']}
-export const debugHead: string = 'default'
 
 // All intervals in milliseconds at worldSpeed=1.
 // Effective interval at runtime: BASE / worldSpeed.
@@ -55,18 +49,18 @@ export const HAPPINESS_CLEAN_BONUS = 15
 // 0..sad: sad face. sad+1..grim: grim face. grim+1..100: smile.
 export const HAPPY_THRESHOLDS = { sad: 33, grim: 66 }
 
+// Adult face mood tiers, by current (live) happiness. Each value is the upper
+// bound of that tier:
+//   0..15 miserable, 16..40 down, 41..70 neutral, 71..90 content, 91..100 radiant.
+export const MOOD_THRESHOLDS = {
+	miserable: 15,
+	down: 40,
+	neutral: 70,
+	content: 90,
+}
+
 // Evolution.
 export const ADULT_DURATION_MS = 4 * 24 * 60 * 60 * 1000 // 4 days
-export const ADULT_HALO_HAPPINESS_MIN = 90
-export const ADULT_CROWN_WEIGHT_MIN = 40
-export const ADULT_CROWN_HAPPINESS_MIN = 80
-export const ADULT_PLANT_POOP_MIN_MS = 24 * 60 * 60 * 1000
-// Wing triggers by avgHappiness:
-//   0..40   → bare
-//   41..80  → wing0
-//   81..100 → wing1
-export const ADULT_WING0_HAPPINESS_MIN = 41
-export const ADULT_WING1_HAPPINESS_MIN = 81
 
 export const STORE_KEY = 'fuka.state.v1'
 

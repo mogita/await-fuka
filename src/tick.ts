@@ -78,46 +78,31 @@ export function tick(
 			}
 		}
 
-		// Hourly metric pass (youth only; adult freezes happiness/metrics).
-		if (s.stage === 'youth') {
-			const happinessInterval = HUNGER_INTERVAL_MS / worldSpeed
-			const happinessBoundaries = Math.max(
-				0,
-				Math.floor((now - s.lastHappinessCheckAt) / happinessInterval),
-			)
-			if (happinessBoundaries > 0) {
-				let happiness = s.happiness
-				let sum = s.lifetimeHappinessSum
-				let samples = s.lifetimeHappinessSamples
-				let cumHungerZero = s.cumulativeHungerZeroMs
-				let cumPoop = s.cumulativeUncleanedPoopMs
-				const hadPoop = s.hasPoop
-				for (let i = 0; i < happinessBoundaries; i++) {
-					happiness = Math.max(0, happiness - HAPPINESS_DECAY_PER_HR)
-					sum += happiness
-					samples += 1
-					if (s.hunger === 0) cumHungerZero += happinessInterval
-					if (hadPoop) cumPoop += happinessInterval
-				}
-				s = {
-					...s,
-					happiness,
-					lifetimeHappinessSum: sum,
-					lifetimeHappinessSamples: samples,
-					cumulativeHungerZeroMs: cumHungerZero,
-					cumulativeUncleanedPoopMs: cumPoop,
-					lastHappinessCheckAt:
-						s.lastHappinessCheckAt + happinessBoundaries * happinessInterval,
-				}
+		// Hourly happiness decay. Runs for youth and adult alike so the adult
+		// face mood keeps reacting to ongoing care: feeding/cleaning raise
+		// happiness via intents at any stage, and this is the matching decay.
+		const happinessInterval = HUNGER_INTERVAL_MS / worldSpeed
+		const happinessBoundaries = Math.max(
+			0,
+			Math.floor((now - s.lastHappinessCheckAt) / happinessInterval),
+		)
+		if (happinessBoundaries > 0) {
+			s = {
+				...s,
+				happiness: Math.max(
+					0,
+					s.happiness - happinessBoundaries * HAPPINESS_DECAY_PER_HR,
+				),
+				lastHappinessCheckAt:
+					s.lastHappinessCheckAt + happinessBoundaries * happinessInterval,
 			}
 		}
 
-		// Adulthood transition (after hourly metrics so the snapshot includes the
-		// most recent happiness sample).
+		// Adulthood transition.
 		if (s.stage === 'youth') {
 			const adultAt = s.bornAt + ADULT_DURATION_MS / worldSpeed
 			if (now >= adultAt) {
-				s = applyAdulthoodSnapshot(s, now, worldSpeed)
+				s = applyAdulthoodSnapshot(s)
 			}
 		}
 
@@ -159,10 +144,13 @@ export function nextInterestingMoment(
 		if (state.hungerZeroSince !== undefined) {
 			candidates.push(state.weightLastCheckAt + HUNGER_INTERVAL_MS / worldSpeed)
 		}
-		if (state.stage === 'youth') {
+		// Happiness decays hourly for youth and adult, so the mood can change.
+		if (state.happiness > 0) {
 			candidates.push(
 				state.lastHappinessCheckAt + HUNGER_INTERVAL_MS / worldSpeed,
 			)
+		}
+		if (state.stage === 'youth') {
 			candidates.push(state.bornAt + ADULT_DURATION_MS / worldSpeed)
 		}
 	}
