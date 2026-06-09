@@ -67,6 +67,76 @@ test('applyExecute: feed at hunger=5 sets rejection and returns to pet', () => {
 	expect(r.screen).toBe('pet')
 })
 
+test('applyExecute: feed with poop sets rejection and does not feed', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		weight: 5,
+		hasPoop: true,
+		happiness: 50,
+		totalFeedCount: 7,
+		lastPoopCheckAt: 123,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(2)
+	expect(r.weight).toBe(5)
+	expect(r.happiness).toBe(50)
+	expect(r.totalFeedCount).toBe(7)
+	expect(r.action).toBeUndefined()
+	expect(r.rejection).toEqual({ until: 4000 })
+	expect(r.screen).toBe('pet')
+	expect(r.hasPoop).toBe(true)
+	expect(r.lastPoopCheckAt).toBe(123)
+})
+
+test('applyExecute: feed with poop AND hunger=5 stays blocked, leaves both unchanged', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 5,
+		hasPoop: true,
+		totalFeedCount: 7,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(5)
+	expect(r.hasPoop).toBe(true)
+	expect(r.totalFeedCount).toBe(7)
+	expect(r.action).toBeUndefined()
+	expect(r.rejection).toEqual({ until: 4000 })
+	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: feed with poop while action active dismisses silently (no rejection)', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		hasPoop: true,
+		action: { kind: 'feed', until: 5000 },
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(2)
+	expect(r.action).toEqual({ kind: 'feed', until: 5000 })
+	expect(r.rejection).toBeUndefined()
+	expect(r.screen).toBe('pet')
+})
+
+test('applyExecute: feed succeeds after poop cleaned (no poop)', () => {
+	const s = pet({
+		screen: 'menu',
+		menuCursor: 'feed',
+		hunger: 2,
+		weight: 1,
+		hasPoop: false,
+	})
+	const r = applyExecute(s, 1000, 1)
+	expect(r.hunger).toBe(3)
+	expect(r.weight).toBeCloseTo(1 + (50 - 1) * 0.02, 5)
+	expect(r.action).toEqual({ kind: 'feed', until: 4000 })
+	expect(r.rejection).toBeUndefined()
+})
+
 test('applyExecute: feed while action active dismisses silently (no rejection)', () => {
 	const s = pet({
 		screen: 'menu',
