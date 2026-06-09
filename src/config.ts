@@ -1,6 +1,25 @@
 // @panel {type:'menu',items:[1,100,1000,10000]}
 export const worldSpeed = 1
 
+// Debug overrides for the adult sprite. 'default' = use whatever the game
+// state holds; any other value forces that variant on the rendered pet
+// immediately. When any override is non-'default' the adult sprite renders
+// even if the pet hasn't reached adulthood yet, so all variants are testable
+// without waiting. The @panel comments are stripped by --minify-whitespace
+// in production builds, so these constants stay at 'default' there.
+
+// @panel {type:'menu',items:['default','roly-poly','lanky-blob','lean-spike','stout-rock']}
+export const debugBody: string = 'default'
+
+// @panel {type:'menu',items:['default','cheerful','sleepy','sly','innocent','grumpy','wise']}
+export const debugFace: string = 'default'
+
+// @panel {type:'menu',items:['default','bare','wing0','wing1']}
+export const debugBack: string = 'default'
+
+// @panel {type:'menu',items:['default','bare','halo','crown','plant']}
+export const debugHead: string = 'default'
+
 // All intervals in milliseconds at worldSpeed=1.
 // Effective interval at runtime: BASE / worldSpeed.
 export const HUNGER_INTERVAL_MS = 60 * 60 * 1000 // 60 min per heart drop

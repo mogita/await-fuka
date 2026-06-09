@@ -142,7 +142,7 @@ function hashSprites(): number {
 	const data = JSON.stringify([
 		// Sentinel: bump when assets/* set changes shape so existing devices
 		// invalidate their cache.
-		'v5-wings',
+		'v6-canvas-40',
 		eggAnim.frames,
 		petIdleAnim.frames,
 		petHungryAnim.frames,
