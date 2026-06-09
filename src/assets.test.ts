@@ -2,10 +2,10 @@ import { expect, test } from 'bun:test'
 import {
 	adultBodyUrls,
 	adultFaceUrl,
-	adultHeadUrl,
 	cleanIconUrl,
 	feedIconUrl,
 	happinessFaceUrl,
+	moodFromHappiness,
 	petAnimSpec,
 	statsIconUrl,
 } from './assets'
@@ -143,16 +143,24 @@ test('adultBodyUrls: returns 2-frame body URLs for archetype + state', () => {
 	])
 })
 
-test('adultFaceUrl: returns face URL for personality + expression', () => {
-	expect(adultFaceUrl('cheerful', 'resting')).toBe(
-		'assets/face-cheerful-resting.png',
+test('adultFaceUrl: returns face URL for mood + expression', () => {
+	expect(adultFaceUrl('radiant', 'resting')).toBe(
+		'assets/face-radiant-resting.png',
 	)
-	expect(adultFaceUrl('grumpy', 'active')).toBe('assets/face-grumpy-active.png')
+	expect(adultFaceUrl('miserable', 'active')).toBe(
+		'assets/face-miserable-active.png',
+	)
 })
 
-test('adultHeadUrl: returns URL for non-bare attachments, undefined for bare', () => {
-	expect(adultHeadUrl('halo')).toBe('assets/head-halo.png')
-	expect(adultHeadUrl('crown')).toBe('assets/head-crown.png')
-	expect(adultHeadUrl('plant')).toBe('assets/head-plant.png')
-	expect(adultHeadUrl('bare')).toBeUndefined()
+test('moodFromHappiness: maps happiness to mood tiers at boundaries', () => {
+	expect(moodFromHappiness(0)).toBe('miserable')
+	expect(moodFromHappiness(15)).toBe('miserable')
+	expect(moodFromHappiness(16)).toBe('down')
+	expect(moodFromHappiness(40)).toBe('down')
+	expect(moodFromHappiness(41)).toBe('neutral')
+	expect(moodFromHappiness(70)).toBe('neutral')
+	expect(moodFromHappiness(71)).toBe('content')
+	expect(moodFromHappiness(90)).toBe('content')
+	expect(moodFromHappiness(91)).toBe('radiant')
+	expect(moodFromHappiness(100)).toBe('radiant')
 })
