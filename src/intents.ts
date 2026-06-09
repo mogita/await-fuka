@@ -58,6 +58,15 @@ export function applyExecute(
 		if (state.action !== undefined) {
 			return { ...state, screen: 'pet' }
 		}
+		// Won't eat in a dirty home: refuse food (head-shake) until poop is
+		// cleaned, so the user learns to clean first.
+		if (state.hasPoop) {
+			return {
+				...state,
+				screen: 'pet',
+				rejection: { until: rejectionUntil },
+			}
+		}
 		if (state.hunger >= HUNGER_MAX) {
 			return {
 				...state,
