@@ -10,12 +10,13 @@ await-fuka is a Tamagotchi-style virtual pet widget for the **iPhone Await app**
 
 Pure-bun toolchain. No npm, yarn, or other package managers.
 
-- `bun install` — install dependencies (only `typescript` and `@types/bun`).
+- `bun install` — install dev dependencies: `@await-widget/runtime` (Await type declarations), `@types/bun`, `typescript`, `@biomejs/biome`, `simple-git-hooks`.
 - `bun test` — run the bun-builtin test runner against `src/**/*.test.ts`. Use `bun test src/foo.test.ts` to scope to one file.
 - `bun run typecheck` — `tsc --noEmit`. Bun's transpiler does not typecheck; this is the only real type gate.
 - `bun run build` — invokes `scripts/build.ts`. Concatenates `src/**` into `build/index.tsx`. Comments survive (this matters: see "Build pipeline" below).
+- `bun run fix` — `biome check --write src scripts` (format + lint with auto-fix). A `simple-git-hooks` pre-commit hook runs it automatically on commit.
 
-There is no lint, no formatter, no dev server. The only on-device test path is to copy `build/index.tsx` to the Await iPhone app and observe.
+There is no dev server. The only on-device test path is to copy `build/index.tsx` to the Await iPhone app and observe.
 
 ## Build pipeline (the unusual part)
 
@@ -52,8 +53,8 @@ AwaitStore <-> state.ts (load/save, GameState type, isValidState)
                     200ms during action, 1000ms otherwise)
                  |
                  v
-        assets.ts (petAssetUrl/feedIconUrl/cleanIconUrl: GameState + time
-                   -> PNG path; picks the animation frame URL)
+        assets.ts (petAnimSpec/adultFaceUrl/moodFromHappiness/feedIconUrl:
+                   GameState + time -> PNG path; picks the frame URL)
                  |
                  v
      widget.tsx + components/* (composes pre-rendered Image views in a
@@ -66,7 +67,7 @@ AwaitStore <-> state.ts (load/save, GameState type, isValidState)
 
 Key architectural constraints:
 
-- **Pre-rendered PNGs are the source of truth at render time.** `prerender.tsx` runs once on app load and saves 19 PNGs to `assets/` (one per sprite frame, plus normal/selected variants of the menu icons). The widget paints `<Image url={...}/>` views — no per-cell `Rectangle` matrix at render time. Bitmaps in `sprites.ts` remain the source of truth at PRE-RENDER time only.
+- **Pre-rendered PNGs are the source of truth at render time.** `prerender.tsx` runs once on app load and bakes every sprite frame to a PNG under `assets/`: the pet animations, the adult body archetypes per state, the mood faces, poop, hearts, and normal/selected menu icons. The widget paints `<Image url={...}/>` views — no per-cell `Rectangle` matrix at render time. The pixel grids in `sprites.ts` and `sprites/*` are the source of truth at PRE-RENDER time only.
 
 - **State is held in `AwaitStore` under a versioned key** (`fuka.state.v1`). On corrupt or missing state, `loadOrInit` writes a fresh egg state with `installedAt = now` so hatch math has a fixed reference.
 
@@ -74,7 +75,9 @@ Key architectural constraints:
 
 - **Intents are split into pure transitions and side-effectful wrappers.** `applyCycle/applyExecute/applyCancel` take state and return new state; tested directly. `cycle/execute/cancel` are thin wrappers (load → tick → apply → save) registered with `Await.define` as `widgetIntents`.
 
-- **`worldSpeed` (in `src/config.ts`) divides every interval at runtime.** It's the only `@panel` value in the project — adjustable on-device via the Await app's panel UI without rebuilding. Tests verify the multiplier propagates through tick, intent, and timeline math.
+- **`worldSpeed` (in `src/config.ts`) divides every interval at runtime.** It's adjustable on-device via the Await app's panel UI without rebuilding (alongside the `debugBody`/`debugFace` override panels). Tests verify the multiplier propagates through tick, intent, and timeline math.
+
+- **Evolution is 2-part: seed body + live mood face (`evolution.ts`).** At adulthood the pet locks in a body archetype derived from `bornSeed` (innate identity that does not change with care). The face is never stored: it is a live mood derived from current happiness at render time (`moodFromHappiness` in `assets.ts`), so caretaking shows on the face continuously. Happiness decays hourly for youth and adult alike.
 
 ## Pre-render system
 
@@ -84,11 +87,11 @@ Boot order:
 
 1. `index.tsx` calls `preRender()` synchronously at module load, **before** `Await.define`.
 2. `preRender()` short-circuits in two cases:
-   - **Host guard**: `AwaitEnv.host !== 'app'`. Pre-render only runs in the iPhone app context, never in the widget context (where `saveUIRenderImage` is unavailable and the memory budget is tight).
-   - **File-existence guard**: all 19 expected paths under `assets/` already exist (checked via `AwaitFile.files('assets')`).
-3. Otherwise it iterates each sprite (egg×2, idle×2, hungry×2, eating×4, happy×2, poop, hearts×2, menu icons×4 with normal/selected variants) and calls `AwaitFile.saveUIRenderImage(path, view)` to bake each one to disk.
+   - **Host guard**: `AwaitEnv.host === 'widget'`. Pre-render only runs in the iPhone app context, never in the widget context (where `saveUIRenderImage` is unavailable and the memory budget is tight).
+   - **Hash guard**: `hashSprites()` computes an FNV-1a hash over every sprite grid and compares it against the value stored under `fuka.assets.hash`. If unchanged, the on-disk cache is current and pre-render is skipped. Bump the sentinel string at the top of `hashSprites()` when the asset *set* changes shape so existing devices invalidate their cache and re-bake.
+3. Otherwise it iterates every sprite and calls `AwaitFile.saveUIRenderImage(path, view)` to bake each one to disk.
 
-Asset names in `assets.ts` (URL helpers) **must** match what `prerender.tsx` saves — there is no shared constant; the strings are typed by hand in both files. Add or rename a sprite in one place and you must mirror it in the other.
+Asset names in `assets.ts` (URL helpers) **must** match what `prerender.tsx` saves — there is no shared constant; the strings are typed by hand in both files. Add or rename a sprite in one place and you must mirror it in the other. The mood face assets (`face-${mood}-${expression}.png`) are remapped from the existing personality grids in `prerender.tsx`; that mapping must stay in sync with `adultFaceUrl`.
 
 ## Animation system
 
@@ -101,13 +104,14 @@ The timeline pre-computes 30 entries with state ticked forward to each entry's t
 
 If autonomous animation freezes on-device after the window expires, the runtime's `update` directive isn't refreshing. Fix is more entries, not faster cadence — pets at idle don't need <1Hz cadence.
 
-## Widget runtime constraints (read `runtime/await.d.ts`)
+## Widget runtime constraints
 
-- **Only import from `'await'`.** Never use HTML tags (`<div>` resolves to `never` in the JSX environment). Components are listed in `runtime/await.d.ts`.
-- **No React, no hooks, no `style={}` objects.** Visual styling is via props and modifiers documented in `types/prop.d.ts`.
-- **Globals are ambient.** `AwaitStore`, `AwaitNetwork`, `AwaitEnv`, `AwaitUI`, `Date.now`, `setTimeout`, `print` are all available without imports — declared in `runtime/bridge.d.ts` and `types/global.d.ts`.
+Type declarations come from the **`@await-widget/runtime`** npm package (a dev dependency). It is wired via `tsconfig.json` (`jsxImportSource: "await"` and `types: ["bun", "@await-widget/runtime"]`); the package ambiently declares the `await` and `await/jsx-runtime` modules plus the global runtime objects. Don't hand-edit the declarations; bump the package version to update them. Read them under `node_modules/@await-widget/runtime/types/`.
+
+- **Only import from `'await'`.** Never use HTML tags (`<div>` resolves to `never` in the JSX environment). Components are declared in the package's `await.d.ts`.
+- **No React, no hooks, no `style={}` objects.** Visual styling is via props and modifiers in the package's `prop.d.ts`.
+- **Globals are ambient.** `AwaitStore`, `AwaitFile`, `AwaitEnv`, `Await`, `Date.now`, `setTimeout` are available without imports — declared in the package's `bridge.d.ts`/`model.d.ts`.
 - **Widgets serialize on a single JS context.** Intents and timeline render are not concurrent; no locks needed.
-- **`runtime/` and `types/` are vendored from the await-widget skill template.** Treat as read-only.
 
 ## Documentation
 

@@ -5,6 +5,7 @@
     "": {
       "name": "await-fuka",
       "devDependencies": {
+        "@await-widget/runtime": "^0.0.14",
         "@biomejs/biome": "^2.4.13",
         "@types/bun": "^1.3.13",
         "simple-git-hooks": "^2.13.1",
@@ -13,6 +14,8 @@
     },
   },
   "packages": {
+    "@await-widget/runtime": ["@await-widget/runtime@0.0.14", "", {}, "sha512-2wcvIjHXfz5ScaPiQesm6t95RMm5jsf3+vGHbfPcgevOk2bLpP7n+2Ke5hxiS78iCVlmAfTl9jcX4g+KA2d7CA=="],
+
     "@biomejs/biome": ["@biomejs/biome@2.4.13", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.4.13", "@biomejs/cli-darwin-x64": "2.4.13", "@biomejs/cli-linux-arm64": "2.4.13", "@biomejs/cli-linux-arm64-musl": "2.4.13", "@biomejs/cli-linux-x64": "2.4.13", "@biomejs/cli-linux-x64-musl": "2.4.13", "@biomejs/cli-win32-arm64": "2.4.13", "@biomejs/cli-win32-x64": "2.4.13" }, "bin": { "biome": "bin/biome" } }, "sha512-gLXOwkOBBg0tr7bDsqlkIh4uFeKuMjxvqsrb1Tukww1iDmHcfr4Uu8MoQxp0Rcte+69+osRNWXwHsu/zxT6XqA=="],
 
     "@biomejs/cli-darwin-arm64": ["@biomejs/cli-darwin-arm64@2.4.13", "", { "os": "darwin", "cpu": "arm64" }, "sha512-2KImO1jhNFBa2oWConyr0x6flxbQpGKv6902uGXpYM62Xyem8U80j441SyUJ8KyngsmKbQjeIv1q2CQfDkNnYg=="],

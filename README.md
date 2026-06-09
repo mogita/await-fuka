@@ -25,7 +25,7 @@ To build the project, run:
 bun run build
 ```
 
-Code formatting is handled by [biome](https://biomejs.dev); a pre-commit hook runs `bun run format` on staged files.
+Code formatting is handled by [biome](https://biomejs.dev); a pre-commit hook runs `bun run fix` before each commit.
 
 ## Installation and Playing
 
